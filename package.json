@@ -1,0 +1,132 @@
+{
+  "name": "flutter-log-fold",
+  "displayName": "Flutter Log Fold",
+  "description": "Foldable, filterable log viewer for Flutter debug sessions (Talker, pretty_dio_logger and custom block formats)",
+  "version": "0.1.0",
+  "publisher": "dawidope",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dawidope/flutter-log-fold"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Debuggers",
+    "Other"
+  ],
+  "keywords": [
+    "flutter",
+    "logs",
+    "talker",
+    "debug",
+    "fold"
+  ],
+  "icon": "icon.png",
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onDebug"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "flutterLogFold",
+          "title": "Flutter Logs",
+          "icon": "$(output)"
+        }
+      ]
+    },
+    "views": {
+      "flutterLogFold": [
+        {
+          "type": "webview",
+          "id": "flutterLogFold.logView",
+          "name": "Flutter Logs"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "flutterLogFold.show",
+        "title": "Flutter Logs: Show Panel"
+      },
+      {
+        "command": "flutterLogFold.clear",
+        "title": "Flutter Logs: Clear"
+      }
+    ],
+    "configuration": {
+      "title": "Flutter Log Fold",
+      "properties": {
+        "flutterLogFold.autoOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically open the log panel when a debug session starts."
+        },
+        "flutterLogFold.collapseByDefault": {
+          "type": "boolean",
+          "default": true,
+          "description": "Collapse new log blocks by default."
+        },
+        "flutterLogFold.maxLogs": {
+          "type": "number",
+          "default": 500,
+          "minimum": 50,
+          "maximum": 10000,
+          "description": "Maximum number of log entries kept in the panel and buffer (oldest are removed)."
+        },
+        "flutterLogFold.preset": {
+          "type": "string",
+          "default": "talker",
+          "enum": [
+            "talker",
+            "pretty",
+            "custom"
+          ],
+          "enumDescriptions": [
+            "Talker / talker_flutter / talker_dio_logger (box-drawing: ┌│└)",
+            "pretty_dio_logger / logger (box-drawing: ╔║╚)",
+            "Use custom blockStart / blockEnd / blockContentPrefix values"
+          ],
+          "description": "Block pattern preset. Selecting a preset overrides blockStart, blockEnd and blockContentPrefix."
+        },
+        "flutterLogFold.blockStart": {
+          "type": "string",
+          "default": "┌──",
+          "description": "Block start marker (substring match). Only used when preset is 'custom'."
+        },
+        "flutterLogFold.blockEnd": {
+          "type": "string",
+          "default": "└──",
+          "description": "Block end marker (substring match). Only used when preset is 'custom'."
+        },
+        "flutterLogFold.blockContentPrefix": {
+          "type": "string",
+          "default": "│",
+          "description": "Prefix stripped from lines inside a block. Only used when preset is 'custom'. Empty string = no stripping."
+        },
+        "flutterLogFold.lineStripPattern": {
+          "type": "string",
+          "default": "",
+          "description": "Optional regex applied to every line before block detection. Use to strip process prefixes, e.g. ^[A-Z]/[\\w.]+\\(\\d+\\):\\s? removes 'I/flutter (PID): '. Empty = disabled."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.33",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  }
+}

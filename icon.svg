@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="flutter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#54C5F8"/>
+      <stop offset="100%" stop-color="#01579B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="256" height="256" rx="48" ry="48" fill="url(#bg)"/>
+
+  <!-- Log lines (plain) - dimmed -->
+  <rect x="40" y="40" width="120" height="8" rx="4" fill="#4a5568" opacity="0.5"/>
+  <rect x="40" y="58" width="90" height="8" rx="4" fill="#4a5568" opacity="0.5"/>
+
+  <!-- Folded block 1 - collapsed -->
+  <g>
+    <!-- Collapse arrow ▶ -->
+    <polygon points="40,88 40,108 52,98" fill="url(#flutter)"/>
+    <!-- Badge -->
+    <rect x="58" y="90" width="48" height="16" rx="4" fill="#00b894"/>
+    <!-- Summary line -->
+    <rect x="112" y="92" width="104" height="8" rx="4" fill="#a0aec0" opacity="0.7"/>
+  </g>
+
+  <!-- Folded block 2 - expanded -->
+  <g>
+    <!-- Expand arrow ▼ -->
+    <polygon points="34,126 52,126 43,138" fill="url(#flutter)"/>
+    <!-- Badge -->
+    <rect x="58" y="126" width="42" height="16" rx="4" fill="#6c5ce7"/>
+    <!-- Summary line -->
+    <rect x="106" y="128" width="110" height="8" rx="4" fill="#a0aec0" opacity="0.7"/>
+
+    <!-- Expanded content area -->
+    <rect x="48" y="152" width="168" height="60" rx="6" fill="#ffffff" opacity="0.05"/>
+    <rect x="60" y="164" width="140" height="6" rx="3" fill="#a0aec0" opacity="0.4"/>
+    <rect x="60" y="178" width="100" height="6" rx="3" fill="#a0aec0" opacity="0.4"/>
+    <rect x="60" y="192" width="120" height="6" rx="3" fill="#a0aec0" opacity="0.4"/>
+  </g>
+
+  <!-- Bottom plain line -->
+  <rect x="40" y="224" width="80" height="8" rx="4" fill="#4a5568" opacity="0.5"/>
+</svg>
