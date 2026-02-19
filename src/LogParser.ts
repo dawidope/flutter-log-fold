@@ -1,4 +1,6 @@
 import { LogEntry, LogCategory, LogSource, BlockPatterns, SEVERITY_LEVELS } from './types';
+import { FormatterRegistry } from './formatters/registry';
+import { blocFormatters } from './formatters/bloc';
 
 const ANSI_REGEX = /\x1b\[[0-9;]*[a-zA-Z]/g;
 const ANDROID_LOG_PREFIX = /^([A-Z])\/(\S+)\s*\(\d+\):\s?/;
@@ -38,6 +40,7 @@ export class LogParser {
   private lineStripRegex: RegExp | null = null;
   private onEntry: (entry: LogEntry) => void;
   private knownTags = new Set<string>();
+  private registry = new FormatterRegistry();
   private settings: ParserSettings;
 
   constructor(patterns: BlockPatterns, lineStripPattern: string, settings: ParserSettings, onEntry: (entry: LogEntry) => void) {
@@ -45,6 +48,7 @@ export class LogParser {
     this.settings = settings;
     this.onEntry = onEntry;
     this.setLineStripRegex(lineStripPattern);
+    this.applySettings();
   }
 
   updatePatterns(patterns: BlockPatterns, lineStripPattern: string): void {
@@ -54,6 +58,16 @@ export class LogParser {
 
   updateSettings(settings: ParserSettings): void {
     this.settings = settings;
+    this.applySettings();
+  }
+
+  private applySettings(): void {
+    // Bloc formatters
+    if (this.settings.talkerBlocFormat) {
+      this.registry.register(blocFormatters);
+    } else {
+      this.registry.unregister(blocFormatters);
+    }
   }
 
   getKnownTags(): string[] {
@@ -151,7 +165,7 @@ export class LogParser {
     // For blocks: scan first content line for tag pattern
     const firstLine = cleanLines.length > 0 ? cleanLines[0] : '';
     const category = this.detectCategory(firstLine);
-    const summary = this.formatBlockSummary(category, cleanLines) ?? this.extractSummary(cleanLines);
+    const summary = this.formatBlockSummary(cleanLines) ?? this.extractSummary(cleanLines);
 
     const entry: LogEntry = {
       id: this.nextId++,
@@ -215,39 +229,12 @@ export class LogParser {
     return 'info';
   }
 
-  private formatBlockSummary(category: string, cleanLines: string[]): string | null {
-    if (category !== 'bloc' || !this.settings.talkerBlocFormat) { return null; }
-    if (cleanLines.length < 2) { return null; }
-
+  private formatBlockSummary(cleanLines: string[]): string | null {
+    if (cleanLines.length < 1) { return null; }
     const header = cleanLines[0].trim();
-    const tagMatch = header.match(/^\[(bloc-\w+)\]/);
+    const tagMatch = header.match(/^\[([a-zA-Z][a-zA-Z0-9]*(?:-[^\]]*)?)\]/);
     if (!tagMatch) { return null; }
-    const tag = tagMatch[1]; // e.g. bloc-transition
-
-    if (tag === 'bloc-transition') {
-      // Lines: [bloc-transition] | HH:MM:SS ... |
-      //        SomeCubit changed
-      //        CURRENT state: OldState
-      //        NEXT state: NewState
-      const nameMatch = cleanLines[1]?.trim().match(/^(.+?)\s+changed$/);
-      const currentMatch = cleanLines[2]?.trim().match(/^CURRENT state:\s*(.+)$/);
-      const nextMatch = cleanLines[3]?.trim().match(/^NEXT state:\s*(.+)$/);
-      if (nameMatch && currentMatch && nextMatch) {
-        return `[${tag}] ${nameMatch[1]} | ${currentMatch[1]} -> ${nextMatch[1]}`;
-      }
-    }
-
-    if (tag === 'bloc-create' || tag === 'bloc-close') {
-      // Lines: [bloc-create] | HH:MM:SS ... |
-      //        SomeCubit created/closed
-      const line = cleanLines[1]?.trim();
-      if (line) {
-        const name = line.replace(/\s+(created|closed)$/, '');
-        return `[${tag}] ${name}`;
-      }
-    }
-
-    return null;
+    return this.registry.format(tagMatch[1].toLowerCase(), cleanLines);
   }
 
   private cleanBlockLines(
