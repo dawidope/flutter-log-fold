@@ -1,6 +1,8 @@
 import { LogEntry, LogCategory, LogSource, BlockPatterns, SEVERITY_LEVELS } from './types';
 import { FormatterRegistry } from './formatters/registry';
 import { blocFormatters } from './formatters/bloc';
+import { routeFormatters } from './formatters/route';
+import { talkerDefaultFormatter } from './formatters/talker-default';
 
 const ANSI_REGEX = /\x1b\[[0-9;]*[a-zA-Z]/g;
 const ANDROID_LOG_PREFIX = /^([A-Z])\/(\S+)\s*\(\d+\):\s?/;
@@ -28,6 +30,8 @@ const severitySet = new Set<string>(SEVERITY_LEVELS);
 
 export interface ParserSettings {
   talkerBlocFormat: boolean;
+  talkerRouteFormat: boolean;
+  talkerStripTimestamp: boolean;
 }
 
 export class LogParser {
@@ -68,6 +72,14 @@ export class LogParser {
     } else {
       this.registry.unregister(blocFormatters);
     }
+    // Route formatters
+    if (this.settings.talkerRouteFormat) {
+      this.registry.register(routeFormatters);
+    } else {
+      this.registry.unregister(routeFormatters);
+    }
+    // Default talker timestamp stripping (fallback)
+    this.registry.setFallback(this.settings.talkerStripTimestamp ? talkerDefaultFormatter : null);
   }
 
   getKnownTags(): string[] {
@@ -165,7 +177,8 @@ export class LogParser {
     // For blocks: scan first content line for tag pattern
     const firstLine = cleanLines.length > 0 ? cleanLines[0] : '';
     const category = this.detectCategory(firstLine);
-    const summary = this.formatBlockSummary(cleanLines) ?? this.extractSummary(cleanLines);
+    const formatted = this.formatBlockSummary(cleanLines);
+    const summary = formatted ?? this.extractSummary(cleanLines);
 
     const entry: LogEntry = {
       id: this.nextId++,
@@ -175,6 +188,7 @@ export class LogParser {
       lines: displayLines,
       category,
       source: this.blockSource,
+      formattedSummary: formatted !== null,
     };
 
     this.inBlock = false;

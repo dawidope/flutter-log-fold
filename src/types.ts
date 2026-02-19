@@ -12,6 +12,7 @@ export interface LogEntry {
   lines: string[];
   category: LogCategory;
   source: LogSource;
+  formattedSummary?: boolean;
 }
 
 export interface BlockPatterns {

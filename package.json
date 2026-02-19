@@ -112,6 +112,16 @@
           "default": true,
           "description": "Format Talker bloc plugin blocks (bloc-transition, bloc-create, bloc-close) into concise one-line summaries."
         },
+        "flutterLogFold.talkerStripTimestamp": {
+          "type": "boolean",
+          "default": true,
+          "description": "Strip Talker's '| HH:MM:SS xxxms |' timestamp from block summaries (fallback for tags without a specific formatter)."
+        },
+        "flutterLogFold.talkerRouteFormat": {
+          "type": "boolean",
+          "default": true,
+          "description": "Format Talker route observer blocks into concise one-line summaries."
+        },
         "flutterLogFold.lineStripPattern": {
           "type": "string",
           "default": "",

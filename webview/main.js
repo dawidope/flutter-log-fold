@@ -400,9 +400,15 @@
 
       const summaryText = document.createElement('span');
       summaryText.className = 'summary-text';
-      // Use first ANSI-colored line for summary display
-      const firstLine = (entry.lines && entry.lines[0]) || entry.summary;
-      summaryText.innerHTML = ansiToHtml(firstLine);
+      const firstLine = (entry.lines && entry.lines[0]) || '';
+      if (entry.formattedSummary) {
+        // Wrap formatted summary in the original ANSI color from the first line
+        const ansiMatch = firstLine.match(/^(\x1b\[[0-9;]*m)+/);
+        const colorPrefix = ansiMatch ? ansiMatch[0] : '';
+        summaryText.innerHTML = ansiToHtml(colorPrefix + entry.summary + (colorPrefix ? '\x1b[0m' : ''));
+      } else {
+        summaryText.innerHTML = ansiToHtml(firstLine || entry.summary);
+      }
 
       summary.appendChild(arrow);
       summary.appendChild(badge);
