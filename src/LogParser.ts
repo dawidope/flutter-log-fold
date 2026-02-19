@@ -108,6 +108,13 @@ export class LogParser {
     }
 
     if (this.inBlock) {
+      // Line from a different source (e.g. W/BillingClient during I/flutter block)
+      // — emit as standalone plain log, don't pollute the block buffer
+      if (source !== this.blockSource) {
+        this.emitPlain(displayLine, detectLine, source);
+        return;
+      }
+
       if (detectLine.includes(this.patterns.blockEnd)) {
         this.blockDisplayBuffer.push(displayLine);
         this.blockDetectBuffer.push(detectLine);
