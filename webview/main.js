@@ -97,12 +97,24 @@
   // ── ANSI → HTML converter ──
 
   const ANSI_COLORS = [
-    '#000000', '#cd3131', '#0dbc79', '#e5e510',
-    '#2472c8', '#bc3fbc', '#11a8cd', '#e5e5e5',
+    'var(--vscode-terminal-ansiBlack, #000000)',
+    'var(--vscode-terminal-ansiRed, #cd3131)',
+    'var(--vscode-terminal-ansiGreen, #0dbc79)',
+    'var(--vscode-terminal-ansiYellow, #e5e510)',
+    'var(--vscode-terminal-ansiBlue, #2472c8)',
+    'var(--vscode-terminal-ansiMagenta, #bc3fbc)',
+    'var(--vscode-terminal-ansiCyan, #11a8cd)',
+    'var(--vscode-terminal-ansiWhite, #e5e5e5)',
   ];
   const ANSI_BRIGHT = [
-    '#666666', '#f14c4c', '#23d18b', '#f5f543',
-    '#3b8eea', '#d670d6', '#29b8db', '#ffffff',
+    'var(--vscode-terminal-ansiBrightBlack, #666666)',
+    'var(--vscode-terminal-ansiBrightRed, #f14c4c)',
+    'var(--vscode-terminal-ansiBrightGreen, #23d18b)',
+    'var(--vscode-terminal-ansiBrightYellow, #f5f543)',
+    'var(--vscode-terminal-ansiBrightBlue, #3b8eea)',
+    'var(--vscode-terminal-ansiBrightMagenta, #d670d6)',
+    'var(--vscode-terminal-ansiBrightCyan, #29b8db)',
+    'var(--vscode-terminal-ansiBrightWhite, #ffffff)',
   ];
 
   /**

@@ -10,10 +10,12 @@ body {
   font-family: var(--vscode-editor-font-family), monospace;
   font-size: var(--vscode-editor-font-size, 13px);
   font-weight: var(--vscode-editor-font-weight, normal);
-  line-height: 1.35;
+  line-height: var(--vscode-editor-line-height, 1.35);
   letter-spacing: 0;
   color: var(--vscode-editor-foreground);
   background: var(--vscode-panel-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
   display: flex;
   flex-direction: column;
