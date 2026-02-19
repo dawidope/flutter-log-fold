@@ -279,5 +279,6 @@ function stripAnsi(line: string): string {
 
 function formatTimestamp(): string {
   const now = new Date();
-  return now.toTimeString().substring(0, 8);
+  const ms = String(now.getMilliseconds()).padStart(3, '0');
+  return now.toTimeString().substring(0, 8) + '.' + ms;
 }
