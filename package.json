@@ -107,6 +107,11 @@
           "default": "│",
           "description": "Prefix stripped from lines inside a block. Only used when preset is 'custom'. Empty string = no stripping."
         },
+        "flutterLogFold.talkerBlocFormat": {
+          "type": "boolean",
+          "default": true,
+          "description": "Format Talker bloc plugin blocks (bloc-transition, bloc-create, bloc-close) into concise one-line summaries."
+        },
         "flutterLogFold.lineStripPattern": {
           "type": "string",
           "default": "",

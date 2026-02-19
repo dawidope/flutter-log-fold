@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { LogParser } from './LogParser';
+import { LogParser, ParserSettings } from './LogParser';
 import { LogPanelProvider } from './LogPanelProvider';
 import { BlockPatterns, PRESETS } from './types';
 
@@ -11,7 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
   const patterns = resolvePatterns();
   const lineStripPattern = vscode.workspace.getConfiguration('flutterLogFold').get<string>('lineStripPattern', '');
 
-  parser = new LogParser(patterns, lineStripPattern, (entry) => {
+  parser = new LogParser(patterns, lineStripPattern, resolveParserSettings(), (entry) => {
     panelProvider.addEntry(entry);
   });
 
@@ -73,6 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
         const newPatterns = resolvePatterns();
         const newLineStrip = vscode.workspace.getConfiguration('flutterLogFold').get<string>('lineStripPattern', '');
         parser.updatePatterns(newPatterns, newLineStrip);
+        parser.updateSettings(resolveParserSettings());
         panelProvider.updateSettings();
       }
     })
@@ -96,6 +97,13 @@ function resolvePatterns(): BlockPatterns {
     blockStart: blockStart || '┌──',
     blockEnd: blockEnd || '└──',
     blockContentPrefix: blockContentPrefix || '│',
+  };
+}
+
+function resolveParserSettings(): ParserSettings {
+  const config = vscode.workspace.getConfiguration('flutterLogFold');
+  return {
+    talkerBlocFormat: config.get<boolean>('talkerBlocFormat', true),
   };
 }
 
