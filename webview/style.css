@@ -107,22 +107,12 @@ body {
   color: var(--vscode-button-foreground);
 }
 
-.chip[data-category="bloc"] {
-  background: var(--flf-badge-bloc-bg, #6c5ce7);
-  color: #fff;
-}
-
-.chip[data-category="http"] {
-  background: var(--flf-badge-http-bg, #00b894);
-  color: #fff;
-}
-
 .chip[data-category="error"] {
   background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
   color: var(--vscode-inputValidation-errorForeground, var(--vscode-errorForeground, #f48771));
 }
 
-.chip[data-category="warning"] {
+.chip[data-category="warn"] {
   background: var(--vscode-inputValidation-warningBackground, #5a4a1d);
   color: var(--vscode-inputValidation-warningForeground, var(--vscode-editorWarning-foreground, #cca700));
 }
@@ -139,6 +129,11 @@ body {
 
 .chip[data-category="verbose"] {
   background: var(--flf-badge-verbose-bg, #636e72);
+  color: #fff;
+}
+
+.chip[data-category="critical"] {
+  background: #d63031;
   color: #fff;
 }
 
@@ -210,22 +205,12 @@ body {
   text-transform: uppercase;
 }
 
-.badge.bloc {
-  background: var(--flf-badge-bloc-bg, #6c5ce7);
-  color: #fff;
-}
-
-.badge.http {
-  background: var(--flf-badge-http-bg, #00b894);
-  color: #fff;
-}
-
 .badge.error {
   background: var(--vscode-inputValidation-errorBackground, #5a1d1d);
   color: var(--vscode-inputValidation-errorForeground, var(--vscode-errorForeground, #f48771));
 }
 
-.badge.warning {
+.badge.warn {
   background: var(--vscode-inputValidation-warningBackground, #5a4a1d);
   color: var(--vscode-inputValidation-warningForeground, var(--vscode-editorWarning-foreground, #cca700));
 }
@@ -242,6 +227,11 @@ body {
 
 .badge.verbose {
   background: var(--flf-badge-verbose-bg, #636e72);
+  color: #fff;
+}
+
+.badge.critical {
+  background: #d63031;
   color: #fff;
 }
 

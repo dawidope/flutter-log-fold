@@ -12,23 +12,78 @@
   const btnCollapse = /** @type {HTMLElement} */ (document.getElementById('btn-collapse'));
   const btnExpand = /** @type {HTMLElement} */ (document.getElementById('btn-expand'));
   const chipSystem = /** @type {HTMLElement} */ (document.getElementById('chip-system'));
+  const chipSeparator = /** @type {HTMLElement} */ (document.getElementById('chip-separator'));
+
+  const SEVERITY_LEVELS = ['info', 'error', 'warn', 'debug', 'verbose', 'critical'];
 
   /** @type {Map<string, boolean>} */
   const activeCategories = new Map([
     ['all', true],
-    ['bloc', true],
-    ['http', true],
-    ['error', true],
-    ['warning', true],
-    ['info', true],
-    ['debug', true],
-    ['verbose', true],
   ]);
 
   let showSystemLogs = false;
   let collapseByDefault = true;
   let totalCount = 0;
   let filterText = '';
+
+  // ── Initialize severity chips ──
+
+  function initChips() {
+    for (const sev of SEVERITY_LEVELS) {
+      createChipElement(sev, true);
+      activeCategories.set(sev, true);
+    }
+  }
+
+  /**
+   * Create a chip button element and insert it before the separator.
+   * @param {string} category
+   * @param {boolean} isSeverity
+   */
+  function createChipElement(category, isSeverity) {
+    const chip = document.createElement('button');
+    chip.className = 'chip active';
+    chip.dataset.category = category;
+    chip.textContent = category.toUpperCase();
+
+    if (!isSeverity) {
+      // Dynamic tag: apply deterministic HSL color
+      const hue = hashStringToHue(category);
+      const bg = 'hsl(' + hue + ', 55%, 35%)';
+      chip.style.background = bg;
+      chip.style.color = '#fff';
+    }
+
+    chipBar.insertBefore(chip, chipSeparator);
+  }
+
+  /**
+   * Ensure a chip exists for a category. Creates a dynamic chip if needed.
+   * @param {string} category
+   */
+  function ensureChip(category) {
+    if (activeCategories.has(category)) { return; }
+    // New dynamic tag
+    activeCategories.set(category, true);
+    createChipElement(category, false);
+    // Update ALL chip state
+    syncAllChip();
+  }
+
+  /**
+   * Deterministic hue from string (0-360).
+   * @param {string} str
+   * @returns {number}
+   */
+  function hashStringToHue(str) {
+    var hash = 0;
+    for (var i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+    }
+    return ((hash % 360) + 360) % 360;
+  }
+
+  initChips();
 
   // ── Smart auto-scroll ──
   let userAtBottom = true;
@@ -166,6 +221,11 @@
         addEntry(message.entry);
         break;
       case 'batch':
+        if (message.knownTags) {
+          for (const tag of message.knownTags) {
+            ensureChip(tag);
+          }
+        }
         addBatch(message.entries);
         break;
       case 'clear':
@@ -229,22 +289,44 @@
     } else {
       const current = activeCategories.get(category) || false;
       activeCategories.set(category, !current);
-
-      const allCategories = ['bloc', 'http', 'error', 'warning', 'info', 'debug', 'verbose'];
-      const allActive = allCategories.every((c) => activeCategories.get(c));
-      activeCategories.set('all', allActive);
+      syncAllChip();
     }
 
     updateChipUI();
     applyFilters();
   });
 
+  /**
+   * Sync the ALL chip based on whether all non-all categories are active.
+   */
+  function syncAllChip() {
+    let allActive = true;
+    activeCategories.forEach((v, key) => {
+      if (key !== 'all' && !v) { allActive = false; }
+    });
+    activeCategories.set('all', allActive);
+  }
+
   // ── Rendering ──
+
+  /**
+   * Normalize category for backward compat (warning → warn).
+   * @param {any} entry
+   * @returns {any}
+   */
+  function normalizeEntry(entry) {
+    if (entry.category === 'warning') {
+      entry.category = 'warn';
+    }
+    return entry;
+  }
 
   /**
    * @param {any} entry
    */
   function addEntry(entry) {
+    normalizeEntry(entry);
+    ensureChip(entry.category);
     totalCount++;
     const el = createEntryElement(entry);
     container.appendChild(el);
@@ -261,6 +343,8 @@
     totalCount = 0;
     const fragment = document.createDocumentFragment();
     for (const entry of entries) {
+      normalizeEntry(entry);
+      ensureChip(entry.category);
       totalCount++;
       const el = createEntryElement(entry);
       fragment.appendChild(el);
@@ -343,8 +427,17 @@
    */
   function createBadge(category) {
     const badge = document.createElement('span');
-    badge.className = `badge ${category}`;
-    badge.textContent = category === 'warning' ? 'WARN' : category.toUpperCase();
+    const isSeverity = SEVERITY_LEVELS.indexOf(category) !== -1;
+    badge.className = 'badge' + (isSeverity ? ' ' + category : '');
+    badge.textContent = category.toUpperCase();
+
+    if (!isSeverity) {
+      // Dynamic tag: use hash color
+      const hue = hashStringToHue(category);
+      badge.style.background = 'hsl(' + hue + ', 55%, 35%)';
+      badge.style.color = '#fff';
+    }
+
     return badge;
   }
 

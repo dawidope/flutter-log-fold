@@ -15,6 +15,8 @@ export function activate(context: vscode.ExtensionContext) {
     panelProvider.addEntry(entry);
   });
 
+  panelProvider.setKnownTagsGetter(() => parser.getKnownTags());
+
   // Register webview provider
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(LogPanelProvider.viewType, panelProvider)

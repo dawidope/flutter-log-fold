@@ -9,12 +9,17 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
   private maxLogs: number;
   private collapseByDefault: boolean;
   private readonly extensionUri: vscode.Uri;
+  private knownTagsGetter?: () => string[];
 
   constructor(extensionUri: vscode.Uri) {
     this.extensionUri = extensionUri;
     const config = vscode.workspace.getConfiguration('flutterLogFold');
     this.maxLogs = config.get<number>('maxLogs', 500);
     this.collapseByDefault = config.get<boolean>('collapseByDefault', true);
+  }
+
+  setKnownTagsGetter(getter: () => string[]): void {
+    this.knownTagsGetter = getter;
   }
 
   resolveWebviewView(
@@ -34,7 +39,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     // Send buffered logs when webview becomes visible
     webviewView.onDidChangeVisibility(() => {
       if (webviewView.visible && this.buffer.length > 0) {
-        this.postMessage({ command: 'batch', entries: this.buffer });
+        this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
         this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault });
       }
     });
@@ -43,7 +48,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     if (this.buffer.length > 0) {
       // Small delay to ensure webview JS is loaded
       setTimeout(() => {
-        this.postMessage({ command: 'batch', entries: this.buffer });
+        this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
         this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault });
       }, 100);
     } else {
@@ -123,14 +128,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     </div>
     <div class="chip-bar" id="chip-bar">
       <button class="chip active" data-category="all">ALL</button>
-      <button class="chip active" data-category="bloc">BLOC</button>
-      <button class="chip active" data-category="http">HTTP</button>
-      <button class="chip active" data-category="error">ERROR</button>
-      <button class="chip active" data-category="warning">WARN</button>
-      <button class="chip active" data-category="info">INFO</button>
-      <button class="chip active" data-category="debug">DEBUG</button>
-      <button class="chip active" data-category="verbose">VERBOSE</button>
-      <span class="chip-separator"></span>
+      <span class="chip-separator" id="chip-separator"></span>
       <button class="chip source-chip" data-source="system" id="chip-system" title="Show system logs (Choreographer, etc.)">SYS</button>
     </div>
   </div>

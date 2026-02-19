@@ -1,4 +1,6 @@
-export type LogCategory = 'bloc' | 'http' | 'error' | 'warning' | 'info' | 'debug' | 'verbose';
+export type LogCategory = string;
+
+export const SEVERITY_LEVELS = ['info', 'error', 'warn', 'debug', 'verbose', 'critical'] as const;
 
 export type LogSource = 'flutter' | 'system';
 
@@ -22,6 +24,7 @@ export interface ExtensionToWebviewMessage {
   command: 'log' | 'batch' | 'clear' | 'settings';
   entry?: LogEntry;
   entries?: LogEntry[];
+  knownTags?: string[];
   collapseByDefault?: boolean;
 }
 

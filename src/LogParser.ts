@@ -1,25 +1,28 @@
-import { LogEntry, LogCategory, LogSource, BlockPatterns } from './types';
+import { LogEntry, LogCategory, LogSource, BlockPatterns, SEVERITY_LEVELS } from './types';
 
 const ANSI_REGEX = /\x1b\[[0-9;]*[a-zA-Z]/g;
 const ANDROID_LOG_PREFIX = /^([A-Z])\/(\S+)\s*\(\d+\):\s?/;
+const TAG_REGEX = /\[([a-zA-Z][a-zA-Z0-9]*?)(?:-[^\]]*)??\]/;
 
 interface CategoryRule {
   category: LogCategory;
   keywords: RegExp;
 }
 
-// Priority order: error > warning > http > bloc > debug > verbose > info
+// Keyword-based fallback rules (priority order)
 const CATEGORY_RULES: CategoryRule[] = [
   { category: 'error', keywords: /\b(ERROR|Exception|FAILURE)\b|(?<![a-zA-Z])Error(?![a-zA-Z])/i },
-  { category: 'warning', keywords: /\b(WARNING|Warning|WARN)\b/ },
-  { category: 'http', keywords: /\b(HTTP|Request|Response|GET|POST|PUT|DELETE|PATCH|Status:)\b/i },
-  { category: 'bloc', keywords: /\b(bloc-transition|Cubit changed|Bloc changed)\b/i },
+  { category: 'warn', keywords: /\b(WARNING|Warning|WARN)\b/ },
+  { category: 'critical', keywords: /\b(CRITICAL|FATAL)\b/i },
   { category: 'debug', keywords: /\bDEBUG\b/ },
   { category: 'verbose', keywords: /\bVERBOSE\b/ },
 ];
 
 const MAX_SUMMARY_LENGTH = 120;
 const MAX_BLOCK_BUFFER = 1000;
+const TAG_SCAN_LIMIT = 100;
+
+const severitySet = new Set<string>(SEVERITY_LEVELS);
 
 export class LogParser {
   private nextId = 1;
@@ -30,6 +33,7 @@ export class LogParser {
   private patterns: BlockPatterns;
   private lineStripRegex: RegExp | null = null;
   private onEntry: (entry: LogEntry) => void;
+  private knownTags = new Set<string>();
 
   constructor(patterns: BlockPatterns, lineStripPattern: string, onEntry: (entry: LogEntry) => void) {
     this.patterns = patterns;
@@ -40,6 +44,10 @@ export class LogParser {
   updatePatterns(patterns: BlockPatterns, lineStripPattern: string): void {
     this.patterns = patterns;
     this.setLineStripRegex(lineStripPattern);
+  }
+
+  getKnownTags(): string[] {
+    return Array.from(this.knownTags);
   }
 
   processOutput(text: string): void {
@@ -124,7 +132,9 @@ export class LogParser {
     const { detect: cleanLines, display: displayLines } =
       this.cleanBlockLines(this.blockDetectBuffer, this.blockDisplayBuffer);
     const summary = this.extractSummary(cleanLines);
-    const category = detectCategory(cleanLines.join(' '));
+    // For blocks: scan first content line for tag pattern
+    const firstLine = cleanLines.length > 0 ? cleanLines[0] : '';
+    const category = this.detectCategory(firstLine);
 
     const entry: LogEntry = {
       id: this.nextId++,
@@ -153,10 +163,39 @@ export class LogParser {
       timestamp: formatTimestamp(),
       summary: summaryText,
       lines: [displayLine],
-      category: detectCategory(detectLine),
+      category: this.detectCategory(detectLine),
       source,
     };
     this.onEntry(entry);
+  }
+
+  private detectCategory(text: string): LogCategory {
+    // Phase 1: Scan first 100 chars for [tag] or [tag-something] pattern
+    const scanText = text.substring(0, TAG_SCAN_LIMIT);
+    const tagMatch = scanText.match(TAG_REGEX);
+
+    if (tagMatch) {
+      const tagName = tagMatch[1].toLowerCase();
+
+      // Phase 2: If tag matches a severity level, return that severity
+      if (severitySet.has(tagName)) {
+        return tagName;
+      }
+
+      // Phase 3: Return as dynamic tag
+      this.knownTags.add(tagName);
+      return tagName;
+    }
+
+    // Phase 4: Fall back to keyword-based severity rules
+    for (const rule of CATEGORY_RULES) {
+      if (rule.keywords.test(text)) {
+        return rule.category;
+      }
+    }
+
+    // Phase 5: Default
+    return 'info';
   }
 
   private cleanBlockLines(
@@ -229,15 +268,6 @@ export class LogParser {
 
 function stripAnsi(line: string): string {
   return line.replace(ANSI_REGEX, '');
-}
-
-function detectCategory(text: string): LogCategory {
-  for (const rule of CATEGORY_RULES) {
-    if (rule.keywords.test(text)) {
-      return rule.category;
-    }
-  }
-  return 'info';
 }
 
 function formatTimestamp(): string {
