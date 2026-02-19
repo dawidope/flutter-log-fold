@@ -629,9 +629,7 @@
     if (typeof value === 'boolean') { return '<span class="jt-bool">' + value + '</span>'; }
     if (typeof value === 'number') { return '<span class="jt-num">' + value + '</span>'; }
     if (typeof value === 'string') {
-      var esc = escapeHtml(value);
-      if (esc.length > 300) { return '<span class="jt-str">"' + esc.substring(0, 300) + '\u2026"</span>'; }
-      return '<span class="jt-str">"' + esc + '"</span>';
+      return '<span class="jt-str">"' + escapeHtml(value) + '"</span>';
     }
     return escapeHtml(String(value));
   }
