@@ -159,17 +159,8 @@
 
   // ── Message handling ──
 
-  // DEBUG: check if ANSI codes arrive in webview
-  let _ansiDebugDone = false;
-
   window.addEventListener('message', (event) => {
     const message = event.data;
-    if (!_ansiDebugDone && message.command === 'log' && message.entry) {
-      const raw = (message.entry.lines || []).join('');
-      const hasAnsi = raw.includes('\x1b');
-      console.log('[FLF-WV] ANSI in webview:', hasAnsi, 'line sample:', JSON.stringify(raw.substring(0, 80)));
-      _ansiDebugDone = true;
-    }
     switch (message.command) {
       case 'log':
         addEntry(message.entry);
@@ -336,7 +327,7 @@
 
       const content = document.createElement('div');
       content.className = 'block-content';
-      content.innerHTML = ansiToHtml(rawText);
+      content.innerHTML = renderBlockContent(entry.lines || []);
 
       details.appendChild(summary);
       details.appendChild(content);
@@ -435,5 +426,295 @@
     if (userAtBottom) {
       container.scrollTop = container.scrollHeight;
     }
+  }
+
+  // ── JSON detection & rendering ──
+
+  /**
+   * Find matching closing bracket, handling strings correctly.
+   * @param {string} text
+   * @param {number} startIdx - index of opening { or [
+   * @returns {string|null}
+   */
+  function extractBalancedJson(text, startIdx) {
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+
+    for (let i = startIdx; i < text.length; i++) {
+      const c = text[i];
+      if (escaped) { escaped = false; continue; }
+      if (c === '\\' && inString) { escaped = true; continue; }
+      if (c === '"') { inString = !inString; continue; }
+      if (inString) { continue; }
+      if (c === '{' || c === '[') { depth++; }
+      if (c === '}' || c === ']') { depth--; }
+      if (depth === 0) { return text.substring(startIdx, i + 1); }
+    }
+    return null;
+  }
+
+  /**
+   * Check if text has unbalanced opening braces/brackets (ignoring strings).
+   * @param {string} text
+   * @returns {boolean}
+   */
+  function hasUnbalancedBraces(text) {
+    var depth = 0;
+    var inStr = false;
+    var esc = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\' && inStr) { esc = true; continue; }
+      if (c === '"') { inStr = !inStr; continue; }
+      if (inStr) { continue; }
+      if (c === '{' || c === '[') { depth++; }
+      if (c === '}' || c === ']') { depth--; }
+    }
+    return depth > 0;
+  }
+
+  /**
+   * Escape raw newlines that appear inside JSON string values.
+   * Log output may split long JSON strings across lines, leaving
+   * unescaped \n / \r inside strings which breaks JSON.parse.
+   * @param {string} text
+   * @returns {string}
+   */
+  function fixJsonNewlines(text) {
+    var result = '';
+    var inStr = false;
+    var esc = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (esc) { esc = false; result += c; continue; }
+      if (c === '\\' && inStr) { esc = true; result += c; continue; }
+      if (c === '"') { inStr = !inStr; result += c; continue; }
+      if (inStr && c === '\n') { result += '\\n'; continue; }
+      if (inStr && c === '\r') { result += '\\r'; continue; }
+      result += c;
+    }
+    return result;
+  }
+
+  /**
+   * Find first valid JSON object/array in text.
+   * Skips nested fragments if the surrounding text has unbalanced braces
+   * (indicates a truncated larger JSON structure).
+   * @param {string} text
+   * @returns {{start: number, end: number, parsed: any}|null}
+   */
+  function findFirstJson(text) {
+    for (var i = 0; i < text.length; i++) {
+      if (text[i] === '{' || text[i] === '[') {
+        var str = extractBalancedJson(text, i);
+        if (str && str.length > 2) {
+          try {
+            var fixed = fixJsonNewlines(str);
+            var parsed = JSON.parse(fixed);
+            // If text before the found JSON has unclosed braces,
+            // the found JSON is a fragment of a larger truncated structure — skip it
+            if (hasUnbalancedBraces(text.substring(0, i))) {
+              return null;
+            }
+            return { start: i, end: i + str.length, parsed: parsed };
+          } catch { /* not valid JSON */ }
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Check if a line has an unclosed JSON string (odd number of unescaped quotes).
+   * @param {string} line
+   * @returns {boolean}
+   */
+  function hasUnclosedString(line) {
+    var count = 0;
+    var esc = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (esc) { esc = false; continue; }
+      if (c === '\\') { esc = true; continue; }
+      if (c === '"') { count++; }
+    }
+    return count % 2 !== 0;
+  }
+
+  /**
+   * Fix lines where a JSON string was truncated by a line-length limit
+   * (e.g., logcat's ~4096 char limit). Closes the string with …[CROPPED]".
+   * @param {string[]} lines
+   * @returns {string[]}
+   */
+  function fixTruncatedJsonLines(lines) {
+    return lines.map(function (line, idx) {
+      if (!hasUnclosedString(line)) { return line; }
+      var fixed = line + '\u2026[CROPPED]"';
+      // Add comma if next non-empty line starts a new JSON property/value
+      for (var j = idx + 1; j < lines.length; j++) {
+        var next = lines[j].trim();
+        if (!next) { continue; }
+        if (next[0] === '"' || next[0] === '{' || next[0] === '[') {
+          fixed += ',';
+        }
+        break;
+      }
+      return fixed;
+    });
+  }
+
+  /**
+   * Render block content with JSON detection.
+   * @param {string[]} lines - raw lines (with ANSI)
+   * @returns {string} HTML
+   */
+  function renderBlockContent(lines) {
+    var cleanLines = fixTruncatedJsonLines(lines.map(function (l) { return stripAnsi(l); }));
+    const cleanText = cleanLines.join('\n');
+    const jsonInfo = findFirstJson(cleanText);
+
+    if (!jsonInfo) {
+      return ansiToHtml(lines.join('\n'));
+    }
+
+    const { start, end, parsed } = jsonInfo;
+    const before = cleanText.substring(0, start);
+    const after = cleanText.substring(end);
+
+    let html = '';
+
+    // Text before JSON
+    if (before.trim()) {
+      html += escapeHtml(before);
+    }
+
+    // JSON as collapsible tree
+    html += renderJsonTree(parsed);
+
+    // Text after JSON
+    if (after.trim()) {
+      html += '\n' + escapeHtml(after);
+    }
+
+    return html;
+  }
+
+  /**
+   * Render a parsed JSON value as a collapsible tree (entry point).
+   * @param {any} value
+   * @returns {string} HTML
+   */
+  function renderJsonTree(value) {
+    if (jsonIsFoldable(value)) {
+      return renderJsonFold('', value, 0, '');
+    }
+    if (Array.isArray(value) && value.length === 0) {
+      return '<span class="jt-brace">[]</span>';
+    }
+    if (typeof value === 'object' && value !== null && Object.keys(value).length === 0) {
+      return '<span class="jt-brace">{}</span>';
+    }
+    return renderJsonPrimitive(value);
+  }
+
+  /**
+   * @param {any} value
+   * @returns {string} HTML
+   */
+  function renderJsonPrimitive(value) {
+    if (value === null) { return '<span class="jt-null">null</span>'; }
+    if (typeof value === 'boolean') { return '<span class="jt-bool">' + value + '</span>'; }
+    if (typeof value === 'number') { return '<span class="jt-num">' + value + '</span>'; }
+    if (typeof value === 'string') {
+      var esc = escapeHtml(value);
+      if (esc.length > 300) { return '<span class="jt-str">"' + esc.substring(0, 300) + '\u2026"</span>'; }
+      return '<span class="jt-str">"' + esc + '"</span>';
+    }
+    return escapeHtml(String(value));
+  }
+
+  /**
+   * @param {any} value
+   * @returns {boolean}
+   */
+  function jsonIsFoldable(value) {
+    if (value === null || typeof value !== 'object') { return false; }
+    if (Array.isArray(value)) {
+      if (value.length === 0) { return false; }
+      if (value.length <= 5 && value.every(function (v) { return v === null || typeof v !== 'object'; })) { return false; }
+      return true;
+    }
+    return Object.keys(value).length > 0;
+  }
+
+  /**
+   * Render a foldable object/array with details/summary.
+   * @param {string} prefixHtml - key HTML (empty for root or array items)
+   * @param {any} value - object or array
+   * @param {number} depth
+   * @param {string} comma - trailing comma
+   * @returns {string} HTML
+   */
+  function renderJsonFold(prefixHtml, value, depth, comma) {
+    var isArr = Array.isArray(value);
+    var ob = isArr ? '[' : '{';
+    var cb = isArr ? ']' : '}';
+    var count = isArr ? value.length : Object.keys(value).length;
+    var label = count + (isArr ? ' items' : (count === 1 ? ' key' : ' keys'));
+    var open = depth < 2 ? ' open' : '';
+
+    var childHtml;
+    if (isArr) {
+      childHtml = value.map(function (v, i) {
+        var c = i < value.length - 1 ? ',' : '';
+        return renderJsonItem('', v, depth + 1, c);
+      }).join('');
+    } else {
+      var keys = Object.keys(value);
+      childHtml = keys.map(function (k, i) {
+        var c = i < keys.length - 1 ? ',' : '';
+        var kh = '<span class="jt-key">"' + escapeHtml(k) + '"</span>: ';
+        return renderJsonItem(kh, value[k], depth + 1, c);
+      }).join('');
+    }
+
+    return '<details class="jt-fold"' + open + '>'
+      + '<summary>' + prefixHtml + '<span class="jt-brace">' + ob + '</span>'
+      + '<span class="jt-preview"> \u2026 ' + cb + comma
+      + ' <span class="jt-hint">// ' + label + '</span></span></summary>'
+      + '<div class="jt-indent">' + childHtml + '</div>'
+      + '<span class="jt-close"><span class="jt-brace">' + cb + '</span>' + comma + '</span>'
+      + '</details>';
+  }
+
+  /**
+   * Render a single JSON property or array item.
+   * @param {string} prefixHtml - key HTML or empty
+   * @param {any} value
+   * @param {number} depth
+   * @param {string} comma
+   * @returns {string} HTML
+   */
+  function renderJsonItem(prefixHtml, value, depth, comma) {
+    if (jsonIsFoldable(value)) {
+      return renderJsonFold(prefixHtml, value, depth, comma);
+    }
+    var html;
+    if (Array.isArray(value)) {
+      if (value.length === 0) {
+        html = '<span class="jt-brace">[]</span>';
+      } else {
+        var items = value.map(function (v) { return renderJsonPrimitive(v); }).join(', ');
+        html = '<span class="jt-brace">[</span>' + items + '<span class="jt-brace">]</span>';
+      }
+    } else if (typeof value === 'object' && value !== null) {
+      html = '<span class="jt-brace">{}</span>';
+    } else {
+      html = renderJsonPrimitive(value);
+    }
+    return '<div class="jt-row">' + prefixHtml + html + comma + '</div>';
   }
 })();

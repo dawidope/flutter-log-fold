@@ -52,14 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
             ) {
               const category = message.body.category;
               if (category === 'stdout' || category === 'stderr' || category === 'console') {
-                const raw = message.body.output;
-                // DEBUG: check for ANSI codes in raw output
-                if (raw.includes('\x1b')) {
-                  console.log('[FLF] ANSI found, first 100 chars:', JSON.stringify(raw.substring(0, 100)));
-                } else if (raw.includes('[0m') || raw.includes('[3')) {
-                  console.log('[FLF] Partial ANSI (no ESC):', JSON.stringify(raw.substring(0, 100)));
-                }
-                parser.processOutput(raw);
+                parser.processOutput(message.body.output);
               }
             }
           },

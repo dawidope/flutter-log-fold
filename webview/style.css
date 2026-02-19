@@ -306,6 +306,85 @@ details[open] > summary .arrow {
   width: 8px;
 }
 
+/* ── JSON tree ── */
+.jt-fold {
+  display: block;
+}
+
+.jt-fold > summary {
+  display: block;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.jt-fold > summary::-webkit-details-marker {
+  display: none;
+}
+
+.jt-fold > summary::before {
+  content: '\25B6';
+  display: inline-block;
+  width: 1em;
+  font-size: 8px;
+  text-align: center;
+  transition: transform 0.15s;
+}
+
+.jt-fold[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.jt-fold[open] > summary .jt-preview {
+  display: none;
+}
+
+.jt-indent {
+  display: block;
+  padding-left: 1.5em;
+}
+
+.jt-row {
+  padding-left: 1em;
+}
+
+.jt-close {
+  padding-left: 1em;
+}
+
+.jt-preview {
+  opacity: 0.45;
+  font-size: 0.9em;
+}
+
+.jt-hint {
+  font-style: italic;
+}
+
+.jt-brace {
+  color: var(--vscode-editor-foreground);
+  opacity: 0.6;
+}
+
+/* Dark theme JSON colors */
+body.vscode-dark .jt-key,
+body.vscode-high-contrast .jt-key { color: #9cdcfe; }
+body.vscode-dark .jt-str,
+body.vscode-high-contrast .jt-str { color: #ce9178; }
+body.vscode-dark .jt-num,
+body.vscode-high-contrast .jt-num { color: #b5cea8; }
+body.vscode-dark .jt-bool,
+body.vscode-dark .jt-null,
+body.vscode-high-contrast .jt-bool,
+body.vscode-high-contrast .jt-null { color: #569cd6; }
+
+/* Light theme JSON colors */
+body.vscode-light .jt-key { color: #0451a5; }
+body.vscode-light .jt-str { color: #a31515; }
+body.vscode-light .jt-num { color: #098658; }
+body.vscode-light .jt-bool,
+body.vscode-light .jt-null { color: #0000ff; }
+
 .block-content::-webkit-scrollbar-thumb {
   background: var(--vscode-scrollbarSlider-background);
 }
