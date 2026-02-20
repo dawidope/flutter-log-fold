@@ -9,8 +9,8 @@ const config = {
   external: ['vscode'],
   format: 'cjs',
   platform: 'node',
-  sourcemap: true,
-  minify: false,
+  sourcemap: watch,
+  minify: !watch,
 };
 
 if (watch) {

@@ -60,6 +60,7 @@ body {
   border: 1px solid var(--vscode-input-border, transparent);
   padding: 3px 6px;
   font-size: 12px;
+  font-family: inherit;
   flex: 1;
   min-width: 80px;
 }
@@ -249,6 +250,11 @@ body {
   gap: 4px;
   outline: none;
   user-select: none;
+}
+
+.log-entry details > summary:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: -1px;
 }
 
 .log-entry details > summary::-webkit-details-marker {

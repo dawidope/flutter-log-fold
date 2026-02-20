@@ -25,6 +25,7 @@
   let collapseByDefault = true;
   let maxLogs = 500;
   let totalCount = 0;
+  let visibleCount = 0;
   let filterText = '';
 
   // ── Initialize severity chips ──
@@ -349,12 +350,17 @@
 
     // Trim oldest DOM nodes to enforce maxLogs limit
     while (container.children.length > maxLogs) {
-      container.removeChild(container.firstElementChild);
+      const removed = container.firstElementChild;
+      if (removed && !removed.classList.contains('hidden')) {
+        visibleCount--;
+      }
+      container.removeChild(removed);
       totalCount--;
     }
 
-    applyFilterToElement(el, entry);
-    updateCounter();
+    const isVisible = applyFilterToElement(el, entry);
+    if (isVisible) { visibleCount++; }
+    updateCounter(visibleCount);
     autoScroll();
   }
 
@@ -364,6 +370,7 @@
   function addBatch(entries) {
     container.innerHTML = '';
     totalCount = 0;
+    visibleCount = 0;
     const fragment = document.createDocumentFragment();
     for (const entry of entries) {
       normalizeEntry(entry);
@@ -380,8 +387,9 @@
   function clearAll() {
     container.innerHTML = '';
     totalCount = 0;
+    visibleCount = 0;
     userAtBottom = true;
-    updateCounter();
+    updateCounter(0);
   }
 
   /**
@@ -474,7 +482,7 @@
 
   function applyFilters() {
     const entries = container.querySelectorAll('.log-entry');
-    let visibleCount = 0;
+    let count = 0;
 
     entries.forEach((el) => {
       const element = /** @type {HTMLElement} */ (el);
@@ -488,18 +496,24 @@
 
       if (sourceMatch && categoryMatch && textMatch) {
         element.classList.remove('hidden');
-        visibleCount++;
+        count++;
       } else {
         element.classList.add('hidden');
       }
     });
 
+    visibleCount = count;
     updateCounter(visibleCount);
   }
 
   /**
    * @param {HTMLElement} el
    * @param {any} entry
+   */
+  /**
+   * @param {HTMLElement} el
+   * @param {any} entry
+   * @returns {boolean} whether the element is visible
    */
   function applyFilterToElement(el, entry) {
     const source = entry.source || 'flutter';
@@ -512,7 +526,9 @@
 
     if (!sourceMatch || !categoryMatch || !textMatch) {
       el.classList.add('hidden');
+      return false;
     }
+    return true;
   }
 
   // ── UI helpers ──
@@ -533,15 +549,8 @@
    * @param {number} [visible]
    */
   function updateCounter(visible) {
-    const v = visible !== undefined ? visible : countVisible();
+    const v = visible !== undefined ? visible : visibleCount;
     counterEl.textContent = `${v} / ${totalCount}`;
-  }
-
-  /**
-   * @returns {number}
-   */
-  function countVisible() {
-    return container.querySelectorAll('.log-entry:not(.hidden)').length;
   }
 
   function autoScroll() {

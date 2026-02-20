@@ -117,7 +117,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="${styleUri}" rel="stylesheet">
   <title>Flutter Logs</title>
@@ -128,7 +128,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
       <button id="btn-clear" title="Clear all logs">Clear</button>
       <button id="btn-collapse" title="Collapse all blocks">Collapse All</button>
       <button id="btn-expand" title="Expand all blocks">Expand All</button>
-      <input type="text" id="input-filter" placeholder="Filter..." title="Filter logs by text (case-insensitive)">
+      <input type="text" id="input-filter" placeholder="Filter..." title="Filter logs by text (case-insensitive)" aria-label="Filter logs">
       <span id="counter" class="counter">0 / 0</span>
     </div>
     <div class="chip-bar" id="chip-bar">

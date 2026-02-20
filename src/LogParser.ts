@@ -15,9 +15,9 @@ interface CategoryRule {
 
 // Keyword-based fallback rules (priority order)
 const CATEGORY_RULES: CategoryRule[] = [
+  { category: 'critical', keywords: /\b(CRITICAL|FATAL)\b/i },
   { category: 'error', keywords: /\b(ERROR|Exception|FAILURE)\b|(?<![a-zA-Z])Error(?![a-zA-Z])/i },
   { category: 'warn', keywords: /\b(WARNING|Warning|WARN)\b/ },
-  { category: 'critical', keywords: /\b(CRITICAL|FATAL)\b/i },
   { category: 'debug', keywords: /\bDEBUG\b/ },
   { category: 'verbose', keywords: /\bVERBOSE\b/ },
 ];

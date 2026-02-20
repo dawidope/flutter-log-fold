@@ -11,8 +11,10 @@ export class FormatterRegistry {
   }
 
   unregister(group: Record<string, BlockFormatter>): void {
-    for (const tag of Object.keys(group)) {
-      this.formatters.delete(tag);
+    for (const [tag, fn] of Object.entries(group)) {
+      if (this.formatters.get(tag) === fn) {
+        this.formatters.delete(tag);
+      }
     }
   }
 

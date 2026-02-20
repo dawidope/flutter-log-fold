@@ -34,7 +34,7 @@
   "icon": "icon.png",
   "main": "./dist/extension.js",
   "activationEvents": [
-    "onDebug"
+    "onDebugAdapterProtocol:dart"
   ],
   "contributes": {
     "viewsContainers": {
