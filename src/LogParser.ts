@@ -42,6 +42,7 @@ export class LogParser {
   private blockSource: LogSource = 'flutter';
   private patterns: BlockPatterns;
   private lineStripRegex: RegExp | null = null;
+  private blockPrefixRegex: RegExp | null = null;
   private onEntry: (entry: LogEntry) => void;
   private knownTags = new Set<string>();
   private registry = new FormatterRegistry();
@@ -52,12 +53,14 @@ export class LogParser {
     this.settings = settings;
     this.onEntry = onEntry;
     this.setLineStripRegex(lineStripPattern);
+    this.buildBlockPrefixRegex();
     this.applySettings();
   }
 
   updatePatterns(patterns: BlockPatterns, lineStripPattern: string): void {
     this.patterns = patterns;
     this.setLineStripRegex(lineStripPattern);
+    this.buildBlockPrefixRegex();
   }
 
   updateSettings(settings: ParserSettings): void {
@@ -97,6 +100,19 @@ export class LogParser {
   flush(): void {
     if (this.inBlock && this.blockDisplayBuffer.length > 0) {
       this.emitBlock();
+    }
+  }
+
+  private buildBlockPrefixRegex(): void {
+    const prefix = this.patterns.blockContentPrefix;
+    if (prefix) {
+      const esc = '\x1b';
+      const prefixEscaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      this.blockPrefixRegex = new RegExp(
+        '^((?:' + esc + '\\[[0-9;]*[a-zA-Z])*)\\s*' + prefixEscaped + ' ?'
+      );
+    } else {
+      this.blockPrefixRegex = null;
     }
   }
 
@@ -281,12 +297,9 @@ export class LogParser {
           if (cleanedD.startsWith(' ')) { cleanedD = cleanedD.substring(1); }
 
           // Display line: strip only the prefix char, preserve ANSI codes before it
-          const esc = '\x1b';
-          const prefixEscaped = blockContentPrefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const rawRegex = new RegExp(
-            '^((?:' + esc + '\\[[0-9;]*[a-zA-Z])*)\\s*' + prefixEscaped + ' ?'
-          );
-          cleanedR = rLine.replace(rawRegex, '$1');
+          if (this.blockPrefixRegex) {
+            cleanedR = rLine.replace(this.blockPrefixRegex, '$1');
+          }
         }
       }
 

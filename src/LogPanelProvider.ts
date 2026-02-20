@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as crypto from 'crypto';
 import { LogEntry, ExtensionToWebviewMessage } from './types';
 
 export class LogPanelProvider implements vscode.WebviewViewProvider {
@@ -10,6 +11,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
   private collapseByDefault: boolean;
   private readonly extensionUri: vscode.Uri;
   private knownTagsGetter?: () => string[];
+  private viewDisposables: vscode.Disposable[] = [];
 
   constructor(extensionUri: vscode.Uri) {
     this.extensionUri = extensionUri;
@@ -27,6 +29,10 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     _context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken,
   ): void {
+    // Dispose previous listeners (in case resolveWebviewView is called again)
+    this.viewDisposables.forEach(d => d.dispose());
+    this.viewDisposables = [];
+
     this.view = webviewView;
 
     webviewView.webview.options = {
@@ -37,12 +43,12 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     webviewView.webview.html = this.getHtmlContent(webviewView.webview);
 
     // Send buffered logs when webview becomes visible
-    webviewView.onDidChangeVisibility(() => {
+    this.viewDisposables.push(webviewView.onDidChangeVisibility(() => {
       if (webviewView.visible && this.buffer.length > 0) {
         this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
         this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault });
       }
-    });
+    }));
 
     // Send buffer on first resolve
     if (this.buffer.length > 0) {
@@ -58,11 +64,17 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     }
 
     // Handle messages from webview
-    webviewView.webview.onDidReceiveMessage((message) => {
+    this.viewDisposables.push(webviewView.webview.onDidReceiveMessage((message) => {
       if (message.command === 'clear') {
         this.buffer = [];
       }
-    });
+    }));
+
+    // Clean up when the view is disposed
+    this.viewDisposables.push(webviewView.onDidDispose(() => {
+      this.viewDisposables.forEach(d => d.dispose());
+      this.viewDisposables = [];
+    }));
   }
 
   addEntry(entry: LogEntry): void {
@@ -140,10 +152,5 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
 }
 
 function getNonce(): string {
-  let text = '';
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
+  return crypto.randomBytes(16).toString('base64url');
 }
