@@ -103,6 +103,13 @@ export class LogParser {
     }
   }
 
+  reset(): void {
+    this.flush();
+    this.inBlock = false;
+    this.blockDisplayBuffer = [];
+    this.blockDetectBuffer = [];
+  }
+
   private buildBlockPrefixRegex(): void {
     const prefix = this.patterns.blockContentPrefix;
     if (prefix) {
