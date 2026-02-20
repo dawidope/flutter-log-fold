@@ -46,7 +46,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     this.viewDisposables.push(webviewView.onDidChangeVisibility(() => {
       if (webviewView.visible && this.buffer.length > 0) {
         this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
-        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault });
+        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
       }
     }));
 
@@ -55,11 +55,11 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
       // Small delay to ensure webview JS is loaded
       setTimeout(() => {
         this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
-        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault });
+        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
       }, 100);
     } else {
       setTimeout(() => {
-        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault });
+        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
       }, 100);
     }
 
@@ -103,7 +103,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
       this.buffer.shift();
     }
 
-    this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault });
+    this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
   }
 
   private postMessage(message: ExtensionToWebviewMessage): void {

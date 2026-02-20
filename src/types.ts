@@ -27,6 +27,7 @@ export interface ExtensionToWebviewMessage {
   entries?: LogEntry[];
   knownTags?: string[];
   collapseByDefault?: boolean;
+  maxLogs?: number;
 }
 
 export interface WebviewToExtensionMessage {

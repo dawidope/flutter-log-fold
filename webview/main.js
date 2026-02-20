@@ -23,6 +23,7 @@
 
   let showSystemLogs = false;
   let collapseByDefault = true;
+  let maxLogs = 500;
   let totalCount = 0;
   let filterText = '';
 
@@ -247,6 +248,9 @@
         if (message.collapseByDefault !== undefined) {
           collapseByDefault = message.collapseByDefault;
         }
+        if (message.maxLogs !== undefined) {
+          maxLogs = message.maxLogs;
+        }
         break;
     }
   });
@@ -342,6 +346,13 @@
     totalCount++;
     const el = createEntryElement(entry);
     container.appendChild(el);
+
+    // Trim oldest DOM nodes to enforce maxLogs limit
+    while (container.children.length > maxLogs) {
+      container.removeChild(container.firstElementChild);
+      totalCount--;
+    }
+
     applyFilterToElement(el, entry);
     updateCounter();
     autoScroll();
