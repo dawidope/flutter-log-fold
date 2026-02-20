@@ -9,6 +9,14 @@
     "type": "git",
     "url": "https://github.com/dawidope/flutter-log-fold"
   },
+  "homepage": "https://github.com/dawidope/flutter-log-fold",
+  "bugs": {
+    "url": "https://github.com/dawidope/flutter-log-fold/issues"
+  },
+  "galleryBanner": {
+    "color": "#1a1a2e",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
