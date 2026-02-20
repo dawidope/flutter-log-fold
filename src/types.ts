@@ -31,7 +31,7 @@ export interface ExtensionToWebviewMessage {
 }
 
 export interface WebviewToExtensionMessage {
-  command: 'clear';
+  command: 'clear' | 'ready';
 }
 
 export const PRESETS: Record<string, BlockPatterns> = {

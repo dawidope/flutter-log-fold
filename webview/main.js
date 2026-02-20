@@ -123,7 +123,7 @@
    * @returns {string}
    */
   function escapeHtml(text) {
-    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   /**
@@ -837,4 +837,7 @@
     }
     return '<div class="jt-row">' + prefixHtml + html + comma + '</div>';
   }
+
+  // Signal to extension that webview is ready to receive messages
+  vscode.postMessage({ command: 'ready' });
 })();

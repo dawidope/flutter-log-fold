@@ -50,21 +50,14 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
       }
     }));
 
-    // Send buffer on first resolve
-    if (this.buffer.length > 0) {
-      // Small delay to ensure webview JS is loaded
-      setTimeout(() => {
-        this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
-        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
-      }, 100);
-    } else {
-      setTimeout(() => {
-        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
-      }, 100);
-    }
-
     // Handle messages from webview
     this.viewDisposables.push(webviewView.webview.onDidReceiveMessage((message) => {
+      if (message.command === 'ready') {
+        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
+        if (this.buffer.length > 0) {
+          this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
+        }
+      }
       if (message.command === 'clear') {
         this.buffer = [];
       }
