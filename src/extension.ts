@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { LogParser, ParserSettings } from './LogParser';
+import { LogParser } from './LogParser';
 import { LogPanelProvider } from './LogPanelProvider';
-import { BlockPatterns, PRESETS } from './types';
+import { BlockPatterns, ParserSettings, PRESETS } from './types';
 
 let panelProvider: LogPanelProvider;
 let parser: LogParser;

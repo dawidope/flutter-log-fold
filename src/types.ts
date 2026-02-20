@@ -15,6 +15,12 @@ export interface LogEntry {
   formattedSummary?: boolean;
 }
 
+export interface ParserSettings {
+  talkerBlocFormat: boolean;
+  talkerRouteFormat: boolean;
+  talkerStripTimestamp: boolean;
+}
+
 export interface BlockPatterns {
   blockStart: string;
   blockEnd: string;

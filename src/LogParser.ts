@@ -1,4 +1,4 @@
-import { LogEntry, LogCategory, LogSource, BlockPatterns, SEVERITY_LEVELS } from './types';
+import { LogEntry, LogCategory, LogSource, BlockPatterns, ParserSettings, SEVERITY_LEVELS } from './types';
 import { FormatterRegistry } from './formatters/registry';
 import { blocFormatters } from './formatters/bloc';
 import { routeFormatters } from './formatters/route';
@@ -27,12 +27,6 @@ const MAX_BLOCK_BUFFER = 1000;
 const TAG_SCAN_LIMIT = 100;
 
 const severitySet = new Set<string>(SEVERITY_LEVELS);
-
-export interface ParserSettings {
-  talkerBlocFormat: boolean;
-  talkerRouteFormat: boolean;
-  talkerStripTimestamp: boolean;
-}
 
 export class LogParser {
   private nextId = 1;
