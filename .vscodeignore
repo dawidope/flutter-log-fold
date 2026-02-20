@@ -6,3 +6,4 @@ esbuild.mjs
 .gitignore
 *.ts
 **/*.map
+screenshot.png

@@ -139,7 +139,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "node esbuild.mjs",
+    "vscode:prepublish": "npm run typecheck && node esbuild.mjs",
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "typecheck": "tsc --noEmit",

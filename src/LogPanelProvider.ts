@@ -64,10 +64,11 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     }));
 
     // Clean up when the view is disposed
-    this.viewDisposables.push(webviewView.onDidDispose(() => {
+    webviewView.onDidDispose(() => {
       this.viewDisposables.forEach(d => d.dispose());
       this.viewDisposables = [];
-    }));
+      this.view = undefined;
+    });
   }
 
   addEntry(entry: LogEntry): void {

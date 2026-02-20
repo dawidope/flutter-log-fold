@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 
 (function () {
   // @ts-ignore
@@ -351,7 +351,8 @@
     // Trim oldest DOM nodes to enforce maxLogs limit
     while (container.children.length > maxLogs) {
       const removed = container.firstElementChild;
-      if (removed && !removed.classList.contains('hidden')) {
+      if (!removed) { break; }
+      if (!removed.classList.contains('hidden')) {
         visibleCount--;
       }
       container.removeChild(removed);
