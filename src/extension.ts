@@ -45,8 +45,6 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.commands.executeCommand('flutterLogFold.logView.focus');
         }
 
-        parser.reset();
-
         return {
           onDidSendMessage(message: any) {
             if (
@@ -59,9 +57,6 @@ export function activate(context: vscode.ExtensionContext) {
                 parser.processOutput(message.body.output);
               }
             }
-          },
-          onWillStopSession() {
-            parser.flush();
           },
         };
       },
