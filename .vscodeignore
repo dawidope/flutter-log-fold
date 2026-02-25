@@ -1,4 +1,5 @@
 .vscode/**
+.claude/**
 src/**
 node_modules/**
 tsconfig.json
@@ -7,3 +8,4 @@ esbuild.mjs
 *.ts
 **/*.map
 screenshot.png
+icon.svg
