@@ -106,6 +106,10 @@ All settings are under the `flutterLogFold.*` namespace.
 
 ## Installation
 
+### From VS Code Marketplace
+
+Install directly from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dawidope.flutter-log-fold) or search for **"Flutter Log Fold"** in the Extensions tab.
+
 ### From VSIX
 
 ```bash
