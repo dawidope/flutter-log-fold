@@ -103,6 +103,7 @@ function resolveParserSettings(): ParserSettings {
     talkerBlocFormat: config.get<boolean>('talkerBlocFormat', true),
     talkerRouteFormat: config.get<boolean>('talkerRouteFormat', true),
     talkerStripTimestamp: config.get<boolean>('talkerStripTimestamp', true),
+    maxBlockLines: config.get<number>('maxBlockLines', 50000),
   };
 }
 

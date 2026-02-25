@@ -85,6 +85,13 @@
           "maximum": 10000,
           "description": "Maximum number of log entries kept in the panel and buffer (oldest are removed)."
         },
+        "flutterLogFold.maxBlockLines": {
+          "type": "number",
+          "default": 50000,
+          "minimum": 500,
+          "maximum": 200000,
+          "description": "Maximum number of lines in a single log block before it is force-emitted. Increase if large HTTP responses (e.g. long JSON payloads) are split across multiple entries."
+        },
         "flutterLogFold.preset": {
           "type": "string",
           "default": "talker",

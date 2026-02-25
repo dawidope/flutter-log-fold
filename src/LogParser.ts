@@ -23,7 +23,7 @@ const CATEGORY_RULES: CategoryRule[] = [
 ];
 
 const MAX_SUMMARY_LENGTH = 120;
-const MAX_BLOCK_BUFFER = 1000;
+const DEFAULT_MAX_BLOCK_LINES = 50_000;
 const TAG_SCAN_LIMIT = 100;
 
 const severitySet = new Set<string>(SEVERITY_LEVELS);
@@ -97,12 +97,6 @@ export class LogParser {
     }
   }
 
-  reset(): void {
-    this.flush();
-    this.inBlock = false;
-    this.blockDisplayBuffer = [];
-    this.blockDetectBuffer = [];
-  }
 
   private buildBlockPrefixRegex(): void {
     const prefix = this.patterns.blockContentPrefix;
@@ -178,7 +172,7 @@ export class LogParser {
       this.blockDisplayBuffer.push(displayLine);
       this.blockDetectBuffer.push(detectLine);
 
-      if (this.blockDisplayBuffer.length > MAX_BLOCK_BUFFER) {
+      if (this.blockDisplayBuffer.length > (this.settings.maxBlockLines || DEFAULT_MAX_BLOCK_LINES)) {
         this.emitBlock();
       }
       return;

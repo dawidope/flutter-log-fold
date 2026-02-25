@@ -19,6 +19,7 @@ export interface ParserSettings {
   talkerBlocFormat: boolean;
   talkerRouteFormat: boolean;
   talkerStripTimestamp: boolean;
+  maxBlockLines: number;
 }
 
 export interface BlockPatterns {
