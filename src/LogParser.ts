@@ -5,7 +5,7 @@ import { routeFormatters } from './formatters/route';
 import { talkerDefaultFormatter } from './formatters/talker-default';
 
 const ANSI_REGEX = /\x1b\[[0-9;]*[a-zA-Z]/g;
-const ANDROID_LOG_PREFIX = /^([A-Z])\/(\S+)\s*\(\d+\):\s?/;
+const ANDROID_LOG_PREFIX = /^([A-Z])\/(\S+)\s*\(\s*\d+\):\s?/;
 const TAG_REGEX = /\[([a-zA-Z][a-zA-Z0-9]*?)(?:-[^\]]*)??\]/;
 
 interface CategoryRule {

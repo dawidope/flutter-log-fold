@@ -87,6 +87,7 @@ All settings are under the `flutterLogFold.*` namespace.
 | `autoOpen` | `true` | Auto-open log panel when a debug session starts |
 | `collapseByDefault` | `true` | Collapse new log blocks by default |
 | `maxLogs` | `500` | Max log entries in buffer (50–10,000) |
+| `maxBlockLines` | `50000` | Max lines per block before force-emit (500–200,000) |
 | `preset` | `"talker"` | Block pattern preset: `talker`, `pretty`, or `custom` |
 | `blockStart` | `"┌──"` | Custom block start marker (only with `custom` preset) |
 | `blockEnd` | `"└──"` | Custom block end marker (only with `custom` preset) |
