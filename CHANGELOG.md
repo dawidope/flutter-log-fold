@@ -5,6 +5,17 @@ All notable changes to the **Flutter Log Fold** extension will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-02-28
+
+### Added
+- iOS/macOS `flutter: ` log prefix stripping — logs from iOS Simulator and macOS runner are now parsed correctly.
+- ANSI escape normalization for macOS — the macOS debug adapter sends ESC as literal `\^[` instead of the real ESC byte; these are now converted before parsing, so ANSI colors render properly.
+- System log detection for iOS/macOS — lines without the `flutter: ` prefix are now classified as system logs and filtered by the SYS chip.
+- "How it works" section in README explaining that the extension parses raw Debug Console text output.
+- "Troubleshooting" section in README documenting the known Flutter issue with missing logs on physical iOS devices.
+
+[0.2.1]: https://github.com/dawidope/flutter-log-fold/compare/v0.1.0...v0.2.1
+
 ## [0.1.0] - 2026-02-25
 
 ### Added

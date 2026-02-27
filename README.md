@@ -125,7 +125,7 @@ Install directly from the [Visual Studio Marketplace](https://marketplace.visual
 ### From VSIX
 
 ```bash
-code --install-extension flutter-log-fold-0.1.0.vsix
+code --install-extension flutter-log-fold-x.x.x.vsix
 ```
 
 ### Build from source
