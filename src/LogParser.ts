@@ -6,6 +6,7 @@ import { talkerDefaultFormatter } from './formatters/talker-default';
 
 const ANSI_REGEX = /\x1b\[[0-9;]*[a-zA-Z]/g;
 const ANDROID_LOG_PREFIX = /^([A-Z])\/(\S+)\s*\(\s*\d+\):\s?/;
+const FLUTTER_LOG_PREFIX = /^flutter:\s?/;
 const TAG_REGEX = /\[([a-zA-Z][a-zA-Z0-9]*?)(?:-[^\]]*)??\]/;
 
 interface CategoryRule {
@@ -135,6 +136,15 @@ export class LogParser {
       detectLine = cleanLine.replace(ANDROID_LOG_PREFIX, '');
       // Prefix is plain text (no ANSI), safe to strip from raw line
       displayLine = rawLine.replace(androidMatch[0], '');
+    }
+
+    if (!androidMatch) {
+      const flutterMatch = detectLine.match(FLUTTER_LOG_PREFIX);
+      if (flutterMatch) {
+        source = 'flutter';
+        detectLine = detectLine.replace(FLUTTER_LOG_PREFIX, '');
+        displayLine = displayLine.replace(FLUTTER_LOG_PREFIX, '');
+      }
     }
 
     // lineStripPattern on detection line only
