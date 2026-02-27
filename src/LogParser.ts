@@ -122,6 +122,9 @@ export class LogParser {
   }
 
   private processLine(rawLine: string): void {
+    // macOS/iOS debug adapter sends ESC as literal \^[ — normalize to real ESC byte
+    rawLine = rawLine.replace(/\\\^\[/g, '\x1b');
+
     // cleanLine: ANSI-stripped, for detection/summary/category
     // displayLine: keeps ANSI codes, for storage/display
     const cleanLine = stripAnsi(rawLine);
