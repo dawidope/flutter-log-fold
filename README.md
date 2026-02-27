@@ -104,6 +104,18 @@ All settings are under the `flutterLogFold.*` namespace.
 - [logger](https://pub.dev/packages/logger)
 - Any custom format via the `custom` preset
 
+## How it works
+
+The extension reads the raw text output from Flutter's Debug Console — the same stream you see in VS Code's built-in terminal. No SDK integration, no custom log drivers, no code changes in your app. It subscribes to `vscode.debug.onDidReceiveDebugSessionCustomEvent` and parses every line as plain text.
+
+Platform-specific prefixes are stripped automatically:
+- **Android** — `I/flutter ( PID): ` (from `adb logcat`)
+- **iOS / macOS** — `flutter: ` (from Xcode runner)
+
+After prefix removal, the parser detects block markers (`┌ │ └` or `╔ ║ ╚`), extracts tags, collapses multi-line blocks into summaries, and renders everything in a dedicated webview panel.
+
+Because it works at the text level, it's compatible with any logging library that prints to `stdout` — Talker, Logger, pretty_dio_logger, or plain `print()`.
+
 ## Installation
 
 ### From VS Code Marketplace
