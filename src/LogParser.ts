@@ -147,6 +147,8 @@ export class LogParser {
         source = 'flutter';
         detectLine = detectLine.replace(FLUTTER_LOG_PREFIX, '');
         displayLine = displayLine.replace(FLUTTER_LOG_PREFIX, '');
+      } else {
+        source = 'system';
       }
     }
 

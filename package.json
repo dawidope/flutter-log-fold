@@ -2,7 +2,7 @@
   "name": "flutter-log-fold",
   "displayName": "Flutter Log Fold",
   "description": "Foldable, filterable log viewer for Flutter debug sessions (Talker, pretty_dio_logger and custom block formats)",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "dawidope",
   "license": "MIT",
   "repository": {
