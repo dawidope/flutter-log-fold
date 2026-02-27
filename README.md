@@ -136,6 +136,19 @@ npm run build
 npm run package
 ```
 
+## Troubleshooting
+
+### No logs on physical iOS device
+
+Flutter has a known issue where debug console output is missing or incomplete when running on a physical iOS device, while the same app logs correctly on the iOS Simulator. The debugger connection can also drop after a short time. This is a Flutter framework limitation, not specific to this extension.
+
+Workarounds:
+- Use the **iOS Simulator** for day-to-day development and log inspection
+- Use **Xcode** to view logs (they appear in Xcode's console even when missing from VS Code)
+- Open **Dart DevTools** in a browser and connect via the VM service URL to see logs
+
+Relevant issues: [flutter#145991](https://github.com/flutter/flutter/issues/145991), [flutter#42410](https://github.com/flutter/flutter/issues/42410), [flutter#127121](https://github.com/flutter/flutter/issues/127121)
+
 ## License
 
 MIT
