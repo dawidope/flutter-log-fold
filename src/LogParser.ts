@@ -1,6 +1,7 @@
 import { LogEntry, LogCategory, LogSource, BlockPatterns, ParserSettings, SEVERITY_LEVELS } from './types';
 import { FormatterRegistry } from './formatters/registry';
 import { blocFormatters } from './formatters/bloc';
+import { riverpodFormatters } from './formatters/riverpod';
 import { routeFormatters } from './formatters/route';
 import { talkerDefaultFormatter } from './formatters/talker-default';
 
@@ -69,6 +70,12 @@ export class LogParser {
       this.registry.register(blocFormatters);
     } else {
       this.registry.unregister(blocFormatters);
+    }
+    // Riverpod formatters
+    if (this.settings.talkerRiverpodFormat) {
+      this.registry.register(riverpodFormatters);
+    } else {
+      this.registry.unregister(riverpodFormatters);
     }
     // Route formatters
     if (this.settings.talkerRouteFormat) {

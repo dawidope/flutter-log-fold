@@ -122,6 +122,10 @@ Because it works at the text level, it's compatible with any logging library tha
 
 Install directly from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dawidope.flutter-log-fold) or search for **"Flutter Log Fold"** in the Extensions tab.
 
+### Cursor / Open VSX
+
+Available on [Open VSX](https://open-vsx.org/extension/dawidope/flutter-log-fold) — search for **"Flutter Log Fold"** in Cursor's Extensions tab, or install manually from a `.vsix` file via **Extensions → … → Install from VSIX**.
+
 ### From VSIX
 
 ```bash

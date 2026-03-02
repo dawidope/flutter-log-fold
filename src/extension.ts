@@ -101,6 +101,7 @@ function resolveParserSettings(): ParserSettings {
   const config = vscode.workspace.getConfiguration('flutterLogFold');
   return {
     talkerBlocFormat: config.get<boolean>('talkerBlocFormat', true),
+    talkerRiverpodFormat: config.get<boolean>('talkerRiverpodFormat', true),
     talkerRouteFormat: config.get<boolean>('talkerRouteFormat', true),
     talkerStripTimestamp: config.get<boolean>('talkerStripTimestamp', true),
     maxBlockLines: config.get<number>('maxBlockLines', 50000),

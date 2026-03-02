@@ -11,6 +11,7 @@ const PRETTY: BlockPatterns = PRESETS.pretty;
 
 const DEFAULT_SETTINGS: ParserSettings = {
   talkerBlocFormat: true,
+  talkerRiverpodFormat: true,
   talkerRouteFormat: true,
   talkerStripTimestamp: true,
   maxBlockLines: 50_000,
@@ -373,6 +374,31 @@ describe('platform fixtures', () => {
     entries.forEach((e) => expect(e.type).toBe('talker-block'));
     expect(entries[0].summary).toBe('Request: GET https://api.example.com/users');
     expect(entries[1].summary).toBe('Response: 200 OK');
+  });
+});
+
+// ── 8b. Riverpod fixture (end-to-end) ─────────────────────────────────
+
+describe('riverpod fixture', () => {
+  it('all blocks parsed with correct formatted summaries', () => {
+    const { entries, parser } = collect();
+    parser.processOutput(fixture('riverpod.txt'));
+
+    expect(entries).toHaveLength(3);
+    entries.forEach((e) => {
+      expect(e.type).toBe('talker-block');
+      expect(e.formattedSummary).toBe(true);
+    });
+
+    expect(entries[0].summary).toBe(
+      '[riverpod-add] FutureProvider<Repository> | AsyncLoading<Repository>()',
+    );
+    expect(entries[1].summary).toBe(
+      "[riverpod-update] FutureProvider<Repository> | AsyncLoading<Repository>() -> AsyncData<Repository>(value: Instance of 'Repository')",
+    );
+    expect(entries[2].summary).toBe(
+      '[riverpod-dispose] FutureProvider<Repository>',
+    );
   });
 });
 
