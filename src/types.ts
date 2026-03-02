@@ -17,6 +17,7 @@ export interface LogEntry {
 
 export interface ParserSettings {
   talkerBlocFormat: boolean;
+  talkerRiverpodFormat: boolean;
   talkerRouteFormat: boolean;
   talkerStripTimestamp: boolean;
   maxBlockLines: number;

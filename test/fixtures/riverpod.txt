@@ -1,0 +1,18 @@
+┌──────────────────────────────────────
+│ [riverpod-add] | 17:15:20 887ms |
+│ FutureProvider<Repository> initialized
+│ INITIAL state:
+│ AsyncLoading<Repository>()
+└──────────────────────────────────────
+┌──────────────────────────────────────
+│ [riverpod-update] | 17:15:20 898ms |
+│ FutureProvider<Repository> updated
+│ PREVIOUS state:
+│ AsyncLoading<Repository>()
+│ NEW state:
+│ AsyncData<Repository>(value: Instance of 'Repository')
+└──────────────────────────────────────
+┌──────────────────────────────────────
+│ [riverpod-dispose] | 17:15:22 378ms |
+│ FutureProvider<Repository> disposed
+└──────────────────────────────────────

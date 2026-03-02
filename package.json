@@ -127,6 +127,11 @@
           "default": true,
           "description": "Format Talker bloc plugin blocks (bloc-transition, bloc-create, bloc-close) into concise one-line summaries."
         },
+        "flutterLogFold.talkerRiverpodFormat": {
+          "type": "boolean",
+          "default": true,
+          "description": "Format Talker Riverpod logger blocks (riverpod-add, riverpod-update, riverpod-dispose) into concise one-line summaries."
+        },
         "flutterLogFold.talkerStripTimestamp": {
           "type": "boolean",
           "default": true,

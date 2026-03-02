@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { FormatterRegistry, BlockFormatter } from '../src/formatters/registry';
 import { blocFormatters } from '../src/formatters/bloc';
+import { riverpodFormatters } from '../src/formatters/riverpod';
 import { routeFormatters } from '../src/formatters/route';
 import { talkerDefaultFormatter } from '../src/formatters/talker-default';
 
@@ -126,6 +127,113 @@ describe('bloc-close formatter', () => {
 
   it('returns null for too few lines', () => {
     expect(format(['[bloc-close] | 10:00:00 1ms |'])).toBeNull();
+  });
+});
+
+// ── riverpod-update ──────────────────────────────────────────────────
+
+describe('riverpod-update formatter', () => {
+  const format = riverpodFormatters['riverpod-update'];
+
+  it('formats update block correctly', () => {
+    const lines = [
+      '[riverpod-update] | 17:15:20 898ms |',
+      'FutureProvider<Repository> updated',
+      'PREVIOUS state:',
+      'AsyncLoading<Repository>()',
+      'NEW state:',
+      "AsyncData<Repository>(value: Instance of 'Repository')",
+    ];
+    expect(format(lines)).toBe(
+      "[riverpod-update] FutureProvider<Repository> | AsyncLoading<Repository>() -> AsyncData<Repository>(value: Instance of 'Repository')",
+    );
+  });
+
+  it('handles multi-line state values (takes first line only)', () => {
+    const lines = [
+      '[riverpod-update] | 17:15:20 898ms |',
+      'SomeProvider updated',
+      'PREVIOUS state:',
+      'OldState(',
+      '  field: value,',
+      ')',
+      'NEW state:',
+      'NewState(',
+      '  field: value,',
+      ')',
+    ];
+    expect(format(lines)).toBe(
+      '[riverpod-update] SomeProvider | OldState( -> NewState(',
+    );
+  });
+
+  it('returns null for too few lines', () => {
+    expect(format(['[riverpod-update] | 17:00:00 1ms |'])).toBeNull();
+    expect(format(['header', 'X updated', 'PREVIOUS state:', 'A'])).toBeNull();
+  });
+
+  it('returns null for malformed lines', () => {
+    const lines = [
+      '[riverpod-update] | 17:00:00 1ms |',
+      'not a valid updated line',
+      'PREVIOUS state:',
+      'A',
+      'NEW state:',
+      'B',
+    ];
+    expect(format(lines)).toBeNull();
+  });
+});
+
+// ── riverpod-add ─────────────────────────────────────────────────────
+
+describe('riverpod-add formatter', () => {
+  const format = riverpodFormatters['riverpod-add'];
+
+  it('formats add block correctly', () => {
+    const lines = [
+      '[riverpod-add] | 17:15:20 887ms |',
+      'FutureProvider<Repository> initialized',
+      'INITIAL state:',
+      'AsyncLoading<Repository>()',
+    ];
+    expect(format(lines)).toBe(
+      '[riverpod-add] FutureProvider<Repository> | AsyncLoading<Repository>()',
+    );
+  });
+
+  it('returns null for too few lines', () => {
+    expect(format(['[riverpod-add] | 17:00:00 1ms |'])).toBeNull();
+    expect(format(['header', 'X initialized'])).toBeNull();
+    expect(format(['header', 'X initialized', 'INITIAL state:'])).toBeNull();
+  });
+
+  it('returns null for malformed lines', () => {
+    const lines = [
+      '[riverpod-add] | 17:00:00 1ms |',
+      'not a valid initialized line',
+      'INITIAL state:',
+      'SomeState()',
+    ];
+    expect(format(lines)).toBeNull();
+  });
+});
+
+// ── riverpod-dispose ─────────────────────────────────────────────────
+
+describe('riverpod-dispose formatter', () => {
+  const format = riverpodFormatters['riverpod-dispose'];
+
+  it('formats dispose block correctly', () => {
+    const lines = [
+      '[riverpod-dispose] | 17:15:22 378ms |',
+      'FutureProvider<Repository> disposed',
+    ];
+    expect(format(lines)).toBe('[riverpod-dispose] FutureProvider<Repository>');
+  });
+
+  it('returns null for too few lines', () => {
+    expect(format(['[riverpod-dispose] | 17:00:00 1ms |'])).toBeNull();
   });
 });
 

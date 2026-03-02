@@ -43,6 +43,9 @@ Built-in formatters condense verbose Talker block output into concise one-liners
 | `bloc-transition` | Multi-line block with timestamps | `[bloc-transition] MyCubit \| OldState -> NewState` |
 | `bloc-create` | Multi-line block | `[bloc-create] MyCubit` |
 | `bloc-close` | Multi-line block | `[bloc-close] MyCubit` |
+| `riverpod-add` | Multi-line block with timestamps | `[riverpod-add] MyProvider \| AsyncLoading()` |
+| `riverpod-update` | Multi-line block with timestamps | `[riverpod-update] MyProvider \| OldState -> NewState` |
+| `riverpod-dispose` | Multi-line block | `[riverpod-dispose] MyProvider` |
 | `route` | Block with timestamps | `[route] Open route named home` |
 | Other tags | Block with `\| HH:MM:SS xxxms \|` header | `[tag] message` (timestamp stripped) |
 
@@ -93,13 +96,14 @@ All settings are under the `flutterLogFold.*` namespace.
 | `blockEnd` | `"└──"` | Custom block end marker (only with `custom` preset) |
 | `blockContentPrefix` | `"│"` | Content prefix to strip (only with `custom` preset) |
 | `talkerBlocFormat` | `true` | Condense bloc-transition/create/close into one-liners |
+| `talkerRiverpodFormat` | `true` | Condense riverpod-add/update/dispose into one-liners |
 | `talkerRouteFormat` | `true` | Condense route observer blocks into one-liners |
 | `talkerStripTimestamp` | `true` | Strip Talker timestamps from other tag summaries |
 | `lineStripPattern` | `""` | Regex to strip from every line before block detection |
 
 ## Supported logging libraries
 
-- [talker](https://pub.dev/packages/talker) / [talker_flutter](https://pub.dev/packages/talker_flutter) / [talker_dio_logger](https://pub.dev/packages/talker_dio_logger)
+- [talker](https://pub.dev/packages/talker) / [talker_flutter](https://pub.dev/packages/talker_flutter) / [talker_dio_logger](https://pub.dev/packages/talker_dio_logger) / [talker_riverpod_logger](https://pub.dev/packages/talker_riverpod_logger)
 - [pretty_dio_logger](https://pub.dev/packages/pretty_dio_logger)
 - [logger](https://pub.dev/packages/logger)
 - Any custom format via the `custom` preset
@@ -121,6 +125,10 @@ Because it works at the text level, it's compatible with any logging library tha
 ### From VS Code Marketplace
 
 Install directly from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=dawidope.flutter-log-fold) or search for **"Flutter Log Fold"** in the Extensions tab.
+
+### Cursor / Open VSX
+
+Available on [Open VSX](https://open-vsx.org/extension/dawidope/flutter-log-fold) — search for **"Flutter Log Fold"** in Cursor's Extensions tab, or install manually from a `.vsix` file via **Extensions → … → Install from VSIX**.
 
 ### From VSIX
 
