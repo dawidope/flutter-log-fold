@@ -326,6 +326,13 @@ export class LogParser {
       const rest = trimmed.substring(marker.length).trim();
       return /^[-─═]*$/.test(rest);
     }
+    // Handle prefixed markers like "[Talker] ┌──────..."
+    const markerIdx = trimmed.indexOf(marker);
+    if (markerIdx > 0) {
+      const before = trimmed.substring(0, markerIdx).trim();
+      const rest = trimmed.substring(markerIdx + marker.length).trim();
+      return /^\[[^\]]+\]$/.test(before) && /^[-─═]*$/.test(rest);
+    }
     return false;
   }
 
