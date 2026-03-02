@@ -5,16 +5,17 @@ All notable changes to the **Flutter Log Fold** extension will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.3.0] - 2026-03-02
+## [0.3.1] - 2026-03-02
 
 ### Added
 - Comprehensive test suite with vitest — 63 tests covering LogParser, formatters, and platform fixture end-to-end scenarios (Android, macOS, iOS, pretty_dio_logger).
-- CI workflow running typecheck, tests, and package build on every push and PR to master.
+- Release workflow now runs tests before building VSIX.
 
 ### Fixed
 - macOS `[Talker]` prefix marker detection — block start/end lines prefixed with `[Talker]` (e.g., `[Talker] ┌──────`) are now correctly recognized as markers and excluded from block content.
+- Excluded `.github/` from VSIX package.
 
-[0.3.0]: https://github.com/dawidope/flutter-log-fold/compare/v0.2.1...v0.3.0
+[0.3.1]: https://github.com/dawidope/flutter-log-fold/compare/v0.2.1...v0.3.1
 
 ## [0.2.1] - 2026-02-28
 
