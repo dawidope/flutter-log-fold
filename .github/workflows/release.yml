@@ -18,6 +18,7 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npm run typecheck
+      - run: npm test
       - run: npm run package
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
