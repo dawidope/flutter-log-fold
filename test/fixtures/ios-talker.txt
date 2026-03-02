@@ -1,0 +1,8 @@
+flutter: ┌──────────────────────────────────────
+flutter: │ [info] | 10:47:20 258ms | App started on iOS
+flutter: │ Device: iPhone 15 Pro
+flutter: └──────────────────────────────────────
+flutter: ┌──────────────────────────────────────
+flutter: │ [warn] | 10:47:21 100ms | Low memory warning
+flutter: │ Available: 128MB
+flutter: └──────────────────────────────────────

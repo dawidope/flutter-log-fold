@@ -1,0 +1,13 @@
+[Talker] ┌──────────────────────────────────────
+         │ [info] | 10:47:20 258ms | App started on macOS
+         │ Platform: darwin
+         └──────────────────────────────────────
+[Talker] ┌──────────────────────────────────────
+         │ [debug] | 10:47:21 100ms | Route changed
+         │ /home -> /settings
+         └──────────────────────────────────────
+[Talker] ┌──────────────────────────────────────
+         │ [http-response] [POST] https://api.demo.net/oauth/token
+         │ Status: 200
+         │ Data: {"token_type": "Bearer"}
+         └──────────────────────────────────────

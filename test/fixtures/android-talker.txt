@@ -1,0 +1,14 @@
+I/flutter ( 1234): ┌──────────────────────────────────────
+I/flutter ( 1234): │ [info] | 10:47:20 258ms | App initialized
+I/flutter ( 1234): │ Version: 1.2.3
+I/flutter ( 1234): └──────────────────────────────────────
+I/flutter ( 1234): ┌──────────────────────────────────────
+I/flutter ( 1234): │ [error] | 10:47:21 100ms | Network timeout
+I/flutter ( 1234): │ Connection refused
+I/flutter ( 1234): └──────────────────────────────────────
+I/flutter ( 1234): ┌──────────────────────────────────────
+I/flutter ( 1234): │ [bloc-transition] | 10:47:22 50ms |
+I/flutter ( 1234): │ AuthCubit changed
+I/flutter ( 1234): │ CURRENT state: Unauthenticated
+I/flutter ( 1234): │ NEXT state: Authenticated
+I/flutter ( 1234): └──────────────────────────────────────

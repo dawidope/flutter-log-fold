@@ -1,0 +1,14 @@
+┌──────────────────────────────────────
+│ [bloc-transition] | 10:47:22 50ms |
+│ CounterCubit changed
+│ CURRENT state: CounterState(count: 0)
+│ NEXT state: CounterState(count: 1)
+└──────────────────────────────────────
+┌──────────────────────────────────────
+│ [bloc-create] | 10:47:22 10ms |
+│ CounterCubit created
+└──────────────────────────────────────
+┌──────────────────────────────────────
+│ [bloc-close] | 10:47:25 5ms |
+│ CounterCubit closed
+└──────────────────────────────────────
