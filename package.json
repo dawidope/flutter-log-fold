@@ -63,6 +63,14 @@
       {
         "command": "flutterLogFold.clear",
         "title": "Flutter Logs: Clear"
+      },
+      {
+        "command": "flutterLogFold.runFlutterCommand",
+        "title": "Flutter Logs: Run Flutter Command..."
+      },
+      {
+        "command": "flutterLogFold.tailFlutterLogs",
+        "title": "Flutter Logs: Tail Flutter Logs..."
       }
     ],
     "configuration": {
@@ -141,6 +149,16 @@
           "type": "string",
           "default": "",
           "description": "Optional regex applied to every line before block detection. Use to strip process prefixes, e.g. ^[A-Z]/[\\w.]+\\(\\d+\\):\\s? removes 'I/flutter (PID): '. Empty = disabled."
+        },
+        "flutterLogFold.runCommandDefault": {
+          "type": "string",
+          "default": "flutter run --debug",
+          "description": "Default text shown when starting the editable Flutter run command prompt."
+        },
+        "flutterLogFold.tailCommandDefault": {
+          "type": "string",
+          "default": "flutter logs",
+          "description": "Default text shown when starting the editable Flutter logs command prompt."
         }
       }
     }

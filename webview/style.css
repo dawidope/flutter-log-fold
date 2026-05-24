@@ -54,6 +54,19 @@ body {
   background: var(--vscode-button-hoverBackground);
 }
 
+.trace-stop {
+  background: var(--vscode-inputValidation-warningBackground, #5a4a1d) !important;
+  color: var(--vscode-inputValidation-warningForeground, var(--vscode-editorWarning-foreground, #cca700)) !important;
+}
+
+.trace-stop:hover {
+  background: var(--vscode-button-hoverBackground) !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
 #input-filter {
   background: var(--vscode-input-background);
   color: var(--vscode-input-foreground);

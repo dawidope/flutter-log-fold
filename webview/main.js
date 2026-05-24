@@ -11,6 +11,7 @@
   const btnClear = /** @type {HTMLElement} */ (document.getElementById('btn-clear'));
   const btnCollapse = /** @type {HTMLElement} */ (document.getElementById('btn-collapse'));
   const btnExpand = /** @type {HTMLElement} */ (document.getElementById('btn-expand'));
+  const btnStopTrace = /** @type {HTMLElement} */ (document.getElementById('btn-stop-trace'));
   const chipSystem = /** @type {HTMLElement} */ (document.getElementById('chip-system'));
   const chipSeparator = /** @type {HTMLElement} */ (document.getElementById('chip-separator'));
 
@@ -252,6 +253,7 @@
         if (message.maxLogs !== undefined) {
           maxLogs = message.maxLogs;
         }
+        updateTraceButton(message.tracingActive, message.tracingDescription);
         break;
     }
   });
@@ -269,6 +271,10 @@
 
   btnExpand.addEventListener('click', () => {
     container.querySelectorAll('details:not([open])').forEach((d) => d.setAttribute('open', ''));
+  });
+
+  btnStopTrace.addEventListener('click', () => {
+    vscode.postMessage({ command: 'stopTracing' });
   });
 
   filterInput.addEventListener('input', () => {
@@ -558,6 +564,21 @@
     if (userAtBottom) {
       container.scrollTop = container.scrollHeight;
     }
+  }
+
+  /**
+   * @param {boolean|undefined} tracingActive
+   * @param {string|undefined} tracingDescription
+   */
+  function updateTraceButton(tracingActive, tracingDescription) {
+    if (tracingActive) {
+      btnStopTrace.classList.remove('hidden');
+      btnStopTrace.title = tracingDescription || 'Stop tracking the flutter run/logs command';
+      return;
+    }
+
+    btnStopTrace.classList.add('hidden');
+    btnStopTrace.title = 'Stop tracking the flutter run/logs command';
   }
 
   // ── JSON detection & rendering ──

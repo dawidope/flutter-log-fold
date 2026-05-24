@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as crypto from 'crypto';
-import { LogEntry, ExtensionToWebviewMessage } from './types';
+import { LogEntry, ExtensionToWebviewMessage, WebviewToExtensionMessage } from './types';
 
 export class LogPanelProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'flutterLogFold.logView';
@@ -12,6 +12,9 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
   private readonly extensionUri: vscode.Uri;
   private knownTagsGetter?: () => string[];
   private viewDisposables: vscode.Disposable[] = [];
+  private tracingActive = false;
+  private tracingDescription = '';
+  private stopTracingHandler?: () => void;
 
   constructor(extensionUri: vscode.Uri) {
     this.extensionUri = extensionUri;
@@ -22,6 +25,22 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
 
   setKnownTagsGetter(getter: () => string[]): void {
     this.knownTagsGetter = getter;
+  }
+
+  setStopTracingHandler(handler: () => void): void {
+    this.stopTracingHandler = handler;
+  }
+
+  setTraceState(active: boolean, description = ''): void {
+    this.tracingActive = active;
+    this.tracingDescription = description;
+    this.postMessage({
+      command: 'settings',
+      collapseByDefault: this.collapseByDefault,
+      maxLogs: this.maxLogs,
+      tracingActive: this.tracingActive,
+      tracingDescription: this.tracingDescription,
+    });
   }
 
   resolveWebviewView(
@@ -46,20 +65,35 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
     this.viewDisposables.push(webviewView.onDidChangeVisibility(() => {
       if (webviewView.visible && this.buffer.length > 0) {
         this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
-        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
+        this.postMessage({
+          command: 'settings',
+          collapseByDefault: this.collapseByDefault,
+          maxLogs: this.maxLogs,
+          tracingActive: this.tracingActive,
+          tracingDescription: this.tracingDescription,
+        });
       }
     }));
 
     // Handle messages from webview
-    this.viewDisposables.push(webviewView.webview.onDidReceiveMessage((message) => {
+    this.viewDisposables.push(webviewView.webview.onDidReceiveMessage((message: WebviewToExtensionMessage) => {
       if (message.command === 'ready') {
-        this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
+        this.postMessage({
+          command: 'settings',
+          collapseByDefault: this.collapseByDefault,
+          maxLogs: this.maxLogs,
+          tracingActive: this.tracingActive,
+          tracingDescription: this.tracingDescription,
+        });
         if (this.buffer.length > 0) {
           this.postMessage({ command: 'batch', entries: this.buffer, knownTags: this.knownTagsGetter?.() });
         }
       }
       if (message.command === 'clear') {
         this.buffer = [];
+      }
+      if (message.command === 'stopTracing') {
+        this.stopTracingHandler?.();
       }
     }));
 
@@ -97,7 +131,13 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
       this.buffer.shift();
     }
 
-    this.postMessage({ command: 'settings', collapseByDefault: this.collapseByDefault, maxLogs: this.maxLogs });
+    this.postMessage({
+      command: 'settings',
+      collapseByDefault: this.collapseByDefault,
+      maxLogs: this.maxLogs,
+      tracingActive: this.tracingActive,
+      tracingDescription: this.tracingDescription,
+    });
   }
 
   private postMessage(message: ExtensionToWebviewMessage): void {
@@ -130,6 +170,7 @@ export class LogPanelProvider implements vscode.WebviewViewProvider {
       <button id="btn-collapse" title="Collapse all blocks">Collapse All</button>
       <button id="btn-expand" title="Expand all blocks">Expand All</button>
       <input type="text" id="input-filter" placeholder="Filter..." title="Filter logs by text (case-insensitive)" aria-label="Filter logs">
+      <button id="btn-stop-trace" class="trace-stop hidden" title="Stop tracking the flutter run/logs command">Stop</button>
       <span id="counter" class="counter">0 / 0</span>
     </div>
     <div class="chip-bar" id="chip-bar">
