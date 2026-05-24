@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
 import { LogParser } from './LogParser';
 import { LogPanelProvider } from './LogPanelProvider';
+import { FlutterTraceSession, promptAndRunFlutterCommand } from './flutterCommandRunner';
 import { BlockPatterns, ParserSettings, PRESETS } from './types';
 
 let panelProvider: LogPanelProvider;
 let parser: LogParser;
+let activeTraceSession: FlutterTraceSession | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
   panelProvider = new LogPanelProvider(context.extensionUri);
@@ -16,6 +18,9 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   panelProvider.setKnownTagsGetter(() => parser.getKnownTags());
+  panelProvider.setStopTracingHandler(() => {
+    stopActiveTraceSession();
+  });
 
   // Register webview provider
   context.subscriptions.push(
@@ -32,6 +37,42 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand('flutterLogFold.clear', () => {
       panelProvider.clearAll();
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('flutterLogFold.runFlutterCommand', async () => {
+      const config = vscode.workspace.getConfiguration('flutterLogFold');
+      const defaultCommand = config.get<string>('runCommandDefault', 'flutter run --debug');
+      const session = await promptAndRunFlutterCommand({
+        title: 'Flutter Logs: Run Flutter Command',
+        defaultCommand,
+        placeholder: 'flutter run --flavor staging --dart-define=API_URL=https://...',
+        onOutput: (text) => parser.processOutput(text),
+        cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+      });
+
+      if (session) {
+        attachTraceSession(session);
+      }
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('flutterLogFold.tailFlutterLogs', async () => {
+      const config = vscode.workspace.getConfiguration('flutterLogFold');
+      const defaultCommand = config.get<string>('tailCommandDefault', 'flutter logs');
+      const session = await promptAndRunFlutterCommand({
+        title: 'Flutter Logs: Tail Flutter Logs',
+        defaultCommand,
+        placeholder: 'flutter logs --device-id emulator-5554',
+        onOutput: (text) => parser.processOutput(text),
+        cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath,
+      });
+
+      if (session) {
+        attachTraceSession(session);
+      }
     })
   );
 
@@ -77,6 +118,29 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
+function attachTraceSession(session: FlutterTraceSession): void {
+  stopActiveTraceSession();
+  activeTraceSession = session;
+  panelProvider.setTraceState(true, `Stop tracking command: ${session.commandLine}`);
+
+  session.onDidStop(() => {
+    if (activeTraceSession === session) {
+      activeTraceSession = undefined;
+      panelProvider.setTraceState(false);
+    }
+  });
+}
+
+function stopActiveTraceSession(): void {
+  if (!activeTraceSession) {
+    return;
+  }
+
+  activeTraceSession.stop();
+  activeTraceSession = undefined;
+  panelProvider.setTraceState(false);
+}
+
 function resolvePatterns(): BlockPatterns {
   const config = vscode.workspace.getConfiguration('flutterLogFold');
   const preset = config.get<string>('preset', 'talker');
@@ -109,5 +173,6 @@ function resolveParserSettings(): ParserSettings {
 
 export function deactivate() {
   // Parser flush on deactivation
+  stopActiveTraceSession();
   parser?.flush();
 }

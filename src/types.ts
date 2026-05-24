@@ -35,10 +35,12 @@ export interface ExtensionToWebviewMessage {
   knownTags?: string[];
   collapseByDefault?: boolean;
   maxLogs?: number;
+  tracingActive?: boolean;
+  tracingDescription?: string;
 }
 
 export interface WebviewToExtensionMessage {
-  command: 'clear' | 'ready';
+  command: 'clear' | 'ready' | 'stopTracing';
 }
 
 export const PRESETS: Record<string, BlockPatterns> = {
