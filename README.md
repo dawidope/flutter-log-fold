@@ -63,6 +63,8 @@ Full ANSI color rendering — 8-color, bright, 256-color palette, and RGB — us
 ### Other
 
 - **Auto-open** — log panel opens automatically when a Flutter debug session starts
+- **Terminal commands** — run editable `flutter run` or `flutter logs` commands from the Command Palette and keep the output flowing into the log panel
+- **Trace stop control** — when logs are coming from those terminal commands, a `Stop` button appears in the toolbar to end tracking and stop the process
 - **Timestamps** — HH:MM:SS.mmm on every block entry
 - **Smart auto-scroll** — stays at bottom for new logs, but respects manual scroll position
 - **Collapse All / Expand All** — toolbar buttons to fold/unfold all blocks at once
@@ -77,6 +79,8 @@ Full ANSI color rendering — 8-color, bright, 256-color palette, and RGB — us
 |---------|-------------|
 | `Flutter Logs: Show Panel` | Open / focus the log panel |
 | `Flutter Logs: Clear` | Clear all logs |
+| `Flutter Logs: Run Flutter Command...` | Open an editable `flutter` command prompt, run it in a pseudoterminal, and stream logs into the panel |
+| `Flutter Logs: Tail Flutter Logs...` | Open an editable `flutter logs` prompt, run it in a pseudoterminal, and stream logs into the panel |
 
 ## Settings
 
@@ -96,6 +100,8 @@ All settings are under the `flutterLogFold.*` namespace.
 | `talkerRouteFormat` | `true` | Condense route observer blocks into one-liners |
 | `talkerStripTimestamp` | `true` | Strip Talker timestamps from other tag summaries |
 | `lineStripPattern` | `""` | Regex to strip from every line before block detection |
+| `runCommandDefault` | `"flutter run --debug"` | Default text shown for the editable Flutter run command prompt |
+| `tailCommandDefault` | `"flutter logs"` | Default text shown for the editable Flutter logs command prompt |
 
 ## Supported logging libraries
 
@@ -106,7 +112,7 @@ All settings are under the `flutterLogFold.*` namespace.
 
 ## How it works
 
-The extension reads the raw text output from Flutter's Debug Console — the same stream you see in VS Code's built-in terminal. No SDK integration, no custom log drivers, no code changes in your app. It subscribes to `vscode.debug.onDidReceiveDebugSessionCustomEvent` and parses every line as plain text.
+The extension reads the raw text output from Flutter debug sessions and from extension-owned pseudoterminals — no SDK integration, no custom log drivers, no code changes in your app. It uses the Dart debug adapter tracker for normal debug runs, and the two Command Palette commands for terminal-based runs.
 
 Platform-specific prefixes are stripped automatically:
 - **Android** — `I/flutter ( PID): ` (from `adb logcat`)
